@@ -2,13 +2,22 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
 import styles from './Map.module.css';
+import { categories } from '../lib/data/categories';
+import { locations } from '../lib/data/locations';
 
 export default function Map() {
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  
   const buildings = [
     { id: 'gedung-a', name: 'Gedung A' },
     { id: 'gedung-b', name: 'Gedung B' },
     { id: 'gedung-c', name: 'Gedung C' },
   ];
+
+  // Filter locations by selected category
+  const filteredLocations = selectedCategory 
+    ? locations.filter(location => location.category === selectedCategory)
+    : locations.filter(location => location.category === 'buildings');
 
   return (
     <>
@@ -20,17 +29,46 @@ export default function Map() {
       
       <div className={styles.mapContainer}>
         <h1 className={styles.title}>Campus Map</h1>
-        <p className={styles.subtitle}>Select a building to view its floor plans</p>
+        <p className={styles.subtitle}>Explore campus locations by category</p>
+        
+        <div className={styles.categoriesContainer}>
+          {categories.map((category) => (
+            <Link
+              key={category.id}
+              href={`/categories/${category.id}`}
+              className={`${styles.categoryButton} ${selectedCategory === category.id ? styles.categoryButtonActive : ''}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setSelectedCategory(category.id);
+              }}
+            >
+              <span className={styles.categoryIcon}>{category.icon}</span>
+              <span>{category.name}</span>
+            </Link>
+          ))}
+        </div>
+        
+        <div className={styles.categoryHeader}>
+          <h2 className={styles.categoryTitle}>
+            {selectedCategory ? categories.find(c => c.id === selectedCategory)?.name : 'Buildings'}
+          </h2>
+          {selectedCategory && (
+            <Link href={`/categories/${selectedCategory}`} className={styles.viewAllLink}>
+              View all {categories.find(c => c.id === selectedCategory)?.name} →
+            </Link>
+          )}
+        </div>
         
         <div className={styles.buildingGrid}>
-          {buildings.map((building) => (
+          {filteredLocations.map((location) => (
             <Link 
-              href={`/maps/${building.id}`}
+              href={`/locations/${location.id}`}
               className={styles.buildingCard} 
-              key={building.id}
+              key={location.id}
             >
-              <h2>{building.name}</h2>
-              <p>View floor plans</p>
+              <h2>{location.name}</h2>
+              <p className={styles.locationDescription}>{location.description.substring(0, 100)}...</p>
+              <p className={styles.viewDetails}>View details →</p>
             </Link>
           ))}
         </div>
