@@ -14,7 +14,7 @@ export default function Home({ allPostsData }) {
       <section className={utilStyles.headingMd}>
         <div className={utilStyles.mapLink}>
           <Link href="/maps" className={utilStyles.mapButton}>
-            View Campus Maps
+            View Fasilkom UI Campus Map
           </Link>
         </div>
       </section>

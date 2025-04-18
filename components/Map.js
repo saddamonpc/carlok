@@ -22,14 +22,14 @@ export default function Map() {
   return (
     <>
       <Head>
-        <title>Campus Map</title>
+        <title>Fasilkom UI Campus Map</title>
         <meta name="description" content="Interactive campus map" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       
       <div className={styles.mapContainer}>
-        <h1 className={styles.title}>Campus Map</h1>
-        <p className={styles.subtitle}>Explore campus locations by category</p>
+        <h1 className={styles.title}>Fasilkom UI Campus Map</h1>
+        <p className={styles.subtitle}>Explore rooms / locations by category</p>
         
         <div className={styles.categoriesContainer}>
           {categories.map((category) => (
