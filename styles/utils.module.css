@@ -50,3 +50,23 @@
 .lightText {
   color: #666;
 }
+
+.mapLink {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.mapButton {
+  display: inline-block;
+  background-color: #0070f3;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.mapButton:hover {
+  background-color: #0060df;
+  text-decoration: none;
+}

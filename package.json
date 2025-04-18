@@ -11,6 +11,7 @@
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "react-zoom-pan-pinch": "^3.7.0",
     "remark": "^14.0.2",
     "remark-html": "^15.0.1"
   },
