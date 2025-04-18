@@ -7,11 +7,13 @@ import Floor from '../../components/Floor';
 import styles from '../../components/Map.module.css';
 import { locations } from '../../lib/data/locations';
 import { categories } from '../../lib/data/categories';
+import { locationImages } from '../../lib/locationImages';
 import { useState } from 'react';
 
-export default function LocationPage({ location, relatedLocations }) {
+export default function LocationPage({ location, relatedLocations, images }) {
   const router = useRouter();
   const [selectedFloorIndex, setSelectedFloorIndex] = useState(0);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   
   if (router.isFallback) {
     return <div>Loading...</div>;
@@ -22,7 +24,7 @@ export default function LocationPage({ location, relatedLocations }) {
   const categoryName = categories.find(c => c.id === location.category)?.name || 'Location';
   const floorName = location.floors ? location.floors[selectedFloorIndex] : null;
   
-  // Determine what to show in the image section
+  // Determine what to show in the floor plan section
   const showFloorPlan = location.category === 'buildings' || location.building;
   const imagePath = showFloorPlan && floorName 
     ? `/denah2/${location.name}/${floorName}.png` 
@@ -54,6 +56,42 @@ export default function LocationPage({ location, relatedLocations }) {
         
         <div className={styles.locationDetails}>
           <p className={styles.locationDescription}>{location.description}</p>
+          
+          {/* Location images */}
+          {images && images.length > 0 && (
+            <div className={styles.locationImagesSection}>
+              <h3>Location Images</h3>
+              <div className={styles.locationMainImage}>
+                <Image
+                  src={images[selectedImageIndex]}
+                  alt={`${location.name} image ${selectedImageIndex + 1}`}
+                  width={800}
+                  height={600}
+                  className={styles.mainLocationImage}
+                  priority
+                />
+              </div>
+              {images.length > 1 && (
+                <div className={styles.locationImageThumbnails}>
+                  {images.map((img, index) => (
+                    <div
+                      key={img}
+                      className={`${styles.thumbnailWrapper} ${index === selectedImageIndex ? styles.activeThumbnail : ''}`}
+                      onClick={() => setSelectedImageIndex(index)}
+                    >
+                      <Image
+                        src={img}
+                        alt={`${location.name} thumbnail ${index + 1}`}
+                        width={100}
+                        height={75}
+                        className={styles.locationThumbnail}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           
           {/* Building-specific details */}
           {location.category === 'buildings' && location.floors && location.floors.length > 0 && (
@@ -209,10 +247,14 @@ export async function getStaticProps({ params }) {
     .filter(loc => loc.category === location.category && loc.id !== location.id)
     .slice(0, 3);
   
+  // Get the images for this location from our manual mapping
+  const images = locationImages[locationId] || locationImages.default;
+  
   return {
     props: {
       location,
       relatedLocations,
+      images,
     },
   };
 }
