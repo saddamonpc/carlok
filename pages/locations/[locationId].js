@@ -99,14 +99,6 @@ export default function LocationPage({ location, relatedLocations }) {
             </div>
           )}
           
-          {/* Opening Hours */}
-          {location.openingHours && (
-            <div className={styles.locationDetailsSection}>
-              <h3>Opening Hours</h3>
-              <p>{location.openingHours}</p>
-            </div>
-          )}
-          
           {/* Equipment for labs */}
           {location.equipment && location.equipment.length > 0 && (
             <div className={styles.locationDetailsSection}>
