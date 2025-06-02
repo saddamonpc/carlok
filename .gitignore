@@ -18,8 +18,32 @@
 # misc
 .DS_Store
 .env*
+.vscode
 
 # debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
+# unused photos
+public/locations/Gedung Baru/Lantai 1/~unused/*.jpg
+public/locations/Gedung Baru/Lantai 2/~unused/*.jpg
+public/locations/Gedung Baru/Lantai 3/~unused/*.jpg
+public/locations/Gedung Baru/Lantai 4/~unsused/*.jpg
+public/locations/Gedung Baru/Lantai 5/~unused/*.jpg
+public/locations/Gedung Baru/Lantai 6/~unused/*.jpg
+public/locations/Gedung Baru/Lantai 7/~unused/*.jpg
+public/locations/Gedung Baru/Lantai Dasar/~unused/*.jpg
+public/locations/Gedung Lama/Gedung A/Lantai 1/~unused/*.jpg
+public/locations/Gedung Lama/Gedung A/Lantai 2/~unused/*.jpg
+public/locations/Gedung Lama/Gedung B/Lantai 1 atas/~unused/*.jpg
+public/locations/Gedung Lama/Gedung B/Lantai 1 utama/~unused/*.jpg
+public/locations/Gedung Lama/Gedung B/Lantai 2/~unused/*.jpg
+public/locations/Gedung Lama/Gedung B/Lantai 3/~unused/*.jpg
+public/locations/Gedung Lama/Gedung B/Lantai 4/~unused/*.jpg
+public/locations/Gedung Lama/Gedung B/Lantai 5/~unused/*.jpg
+public/locations/Gedung Lama/Gedung B/Lantai 6/~unused/*.jpg
+public/locations/Gedung Lama/Gedung C/Lantai 1/~unused/*.jpg
+public/locations/Gedung Lama/Gedung C/Lantai 2/~unused/*.jpg
+public/locations/Gedung Lama/Gedung C/Lantai 3/~unused/*.jpg
