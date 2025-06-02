@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
+import Fuse from 'fuse.js';
 import styles from './Map.module.css';
 import { categories } from '../lib/data/categories';
 import { locations } from '../lib/data/locations.db';
@@ -9,6 +10,71 @@ export default function Map() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [selectedFloor, setSelectedFloor] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Function to normalize room names for better search matching
+  const normalizeRoomName = (text) => {
+    return text
+      .toLowerCase()
+      .replace(/\s+/g, '') // Remove all spaces
+      .replace(/\./g, '') // Remove all dots
+      .replace(/^r\b/, 'ruang') // Replace "r" at start with "ruang"
+      .replace(/^rm\b/, 'ruang') // Replace "rm" at start with "ruang"
+      .replace(/^rg\b/, 'ruang') // Replace "rg" at start with "ruang"
+      .replace(/^lab\b/, 'laboratorium') // Replace "lab" with "laboratorium"
+      .replace(/ruang/g, '') // Remove "ruang" for comparison
+      .replace(/laboratorium/g, '') // Remove "laboratorium" for comparison
+      .trim();
+  };
+
+  // Enhanced location data with normalized search fields
+  const enhancedLocations = useMemo(() => {
+    return locations.map(location => ({
+      ...location,
+      normalizedName: normalizeRoomName(location.name),
+      normalizedId: normalizeRoomName(location.id),
+      searchableText: `${location.name} ${location.id} ${location.description}`.toLowerCase(),
+      roomNumber: location.id.match(/[A-Z]?\d+/g)?.join('') || '', // Extract room numbers like A401, 401
+      variations: [
+        location.name,
+        location.id,
+        `Ruang ${location.id}`,
+        `R. ${location.id}`,
+        `R.${location.id}`,
+        `Rm. ${location.id}`,
+        `Rm ${location.id}`,
+        `Rg. ${location.id}`,
+        location.id.replace(/(\w)(\d)/g, '$1.$2'), // Add dots between letters and numbers
+        location.id.replace(/(\w)(\d)(\d)(\d)/g, '$1.$2.$3.$4'), // Format like A.4.0.1
+        location.id.replace(/(\w)(\d)(\d)(\d)/g, '$1 $2$3$4'), // Format like A 401
+        location.id.replace(/(\w)(\d)(\d)(\d)/g, '$1-$2$3$4'), // Format like A-401
+        // Handle lab variations
+        location.name.replace(/laboratorium/gi, 'lab'),
+        location.name.replace(/lab/gi, 'laboratorium'),
+      ].join(' ').toLowerCase()
+    }));
+  }, []);
+
+  // Configure Fuse.js for fuzzy search with enhanced keys
+  const fuseOptions = {
+    keys: [
+      { name: 'name', weight: 0.4 },
+      { name: 'normalizedName', weight: 0.3 },
+      { name: 'id', weight: 0.2 },
+      { name: 'normalizedId', weight: 0.2 },
+      { name: 'roomNumber', weight: 0.3 },
+      { name: 'variations', weight: 0.2 },
+      { name: 'searchableText', weight: 0.1 },
+      { name: 'description', weight: 0.1 }
+    ],
+    threshold: 0.4, // Slightly more lenient for variations
+    includeScore: true,
+    includeMatches: true,
+    ignoreLocation: true,
+    findAllMatches: true
+  };
+
+  const fuse = useMemo(() => new Fuse(enhancedLocations, fuseOptions), [enhancedLocations]);
     // Get unique buildings from locations that have a building property
   const buildings = [...new Set(locations
     .filter(location => location.building)
@@ -38,10 +104,32 @@ export default function Map() {
           // Default alphabetical sort for other cases
           return a.localeCompare(b);
         })
-    : [];
-  // Filter locations based on selected filters
+    : [];  // Filter locations based on selected filters and search query
   const filteredLocations = (() => {
     let filtered = locations;
+
+    // Apply search filter first if there's a search query
+    if (searchQuery.trim()) {
+      // Normalize the search query for better matching
+      const normalizedQuery = normalizeRoomName(searchQuery.trim());
+      
+      // Search with both original and normalized query
+      const searchResults = fuse.search(searchQuery.trim());
+      const normalizedResults = normalizedQuery !== searchQuery.trim().toLowerCase() 
+        ? fuse.search(normalizedQuery) 
+        : [];
+      
+      // Combine results and remove duplicates
+      const combinedResults = [...searchResults, ...normalizedResults];
+      const uniqueResults = combinedResults.filter((result, index, self) => 
+        index === self.findIndex(r => r.item.id === result.item.id)
+      );
+      
+      // Sort by score (lower is better in Fuse.js)
+      const sortedResults = uniqueResults.sort((a, b) => (a.score || 0) - (b.score || 0));
+      
+      filtered = sortedResults.map(result => result.item);
+    }
 
     // Filter by category
     if (selectedCategory) {
@@ -72,10 +160,31 @@ export default function Map() {
         <meta name="description" content="Interactive campus map" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      
-      <div className={styles.mapContainer}>
+        <div className={styles.mapContainer}>
         <h1 className={styles.title}>Fasilkom UI Campus Map</h1>
-        <p className={styles.subtitle}>Explore rooms / locations by category</p>        <div className={styles.categoriesContainer}>
+        <p className={styles.subtitle}>Explore rooms / locations by category</p>
+
+        {/* Search Bar */}
+        <div className={styles.searchContainer}>
+          <div className={styles.searchInputWrapper}>
+            <input
+              type="text"
+              placeholder="Search locations (e.g., 'A401', 'Ruang A401', 'R. A.4.01', 'Lab Komputer')..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className={styles.clearSearchButton}
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div><div className={styles.categoriesContainer}>
           {sortedCategories.map((category) => (
             <Link
               key={category.id}
@@ -135,15 +244,14 @@ export default function Map() {
                 ))}
               </select>
             </div>
-          )}
-
-          {/* Clear Filters Button */}
-          {(selectedCategory || selectedBuilding || selectedFloor) && (
+          )}          {/* Clear Filters Button */}
+          {(selectedCategory || selectedBuilding || selectedFloor || searchQuery) && (
             <button
               onClick={() => {
                 setSelectedCategory(null);
                 setSelectedBuilding(null);
                 setSelectedFloor(null);
+                setSearchQuery('');
               }}
               className={styles.clearFiltersButton}
             >
@@ -151,11 +259,13 @@ export default function Map() {
             </button>
           )}
         </div>
-          <div className={styles.categoryHeader}>
-          <h2 className={styles.categoryTitle}>
+          <div className={styles.categoryHeader}>          <h2 className={styles.categoryTitle}>
             {(() => {
               const parts = [];
-                if (selectedCategory) {
+              
+              if (searchQuery.trim()) {
+                parts.push(`Search results for "${searchQuery}"`);
+              } else if (selectedCategory) {
                 parts.push(categories.find(c => c.id === selectedCategory)?.name);
               } else {
                 parts.push('All Locations');
@@ -163,12 +273,21 @@ export default function Map() {
               
               if (selectedBuilding) {
                 const buildingName = buildings.find(b => b.id === selectedBuilding)?.name;
-                parts.push(`in ${buildingName}`);
+                if (!searchQuery.trim()) {
+                  parts.push(`in ${buildingName}`);
+                } else {
+                  parts.push(`(${buildingName})`);
+                }
               }
-                if (selectedFloor) {
+              
+              if (selectedFloor) {
                 // Extract just the floor name (everything after the last " - ")
                 const floorName = selectedFloor.split(' - ').pop();
-                parts.push(`- ${floorName}`);
+                if (!searchQuery.trim()) {
+                  parts.push(`- ${floorName}`);
+                } else {
+                  parts.push(`(${floorName})`);
+                }
               }
               
               return parts.join(' ');
