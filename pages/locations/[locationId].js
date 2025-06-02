@@ -5,9 +5,8 @@ import Image from 'next/image';
 import Layout from '../../components/layout';
 import Floor from '../../components/Floor';
 import styles from '../../components/Map.module.css';
-import { locations } from '../../lib/data/locations';
+import { locations, defaultLocationImage } from '../../lib/data/locations.db';
 import { categories } from '../../lib/data/categories';
-import { locationImages } from '../../lib/locationImages';
 import { useState } from 'react';
 
 export default function LocationPage({ location, relatedLocations, images }) {
@@ -32,10 +31,9 @@ export default function LocationPage({ location, relatedLocations, images }) {
       ? `/denah2/${locations.find(l => l.id === location.building)?.name}/${location.floor}.png`
       : null;
 
-  return (
-    <Layout>
+  return (    <Layout>
       <Head>
-        <title>{location.name} - Campus Map</title>
+        <title>{`${location.name} - Campus Map`}</title>
         <meta name="description" content={location.description} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
@@ -122,68 +120,7 @@ export default function LocationPage({ location, relatedLocations, images }) {
                 </Link>
                 {location.floor && <span>, {location.floor}</span>}
               </p>
-            </div>
-          )}
-          
-          {/* Amenities */}
-          {location.amenities && location.amenities.length > 0 && (
-            <div className={styles.locationDetailsSection}>
-              <h3>Amenities</h3>
-              <div className={styles.detailsList}>
-                {location.amenities.map(amenity => (
-                  <span key={amenity} className={styles.detailsItem}>{amenity}</span>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {/* Equipment for labs */}
-          {location.equipment && location.equipment.length > 0 && (
-            <div className={styles.locationDetailsSection}>
-              <h3>Equipment</h3>
-              <div className={styles.detailsList}>
-                {location.equipment.map(item => (
-                  <span key={item} className={styles.detailsItem}>{item}</span>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {/* Software for labs */}
-          {location.software && location.software.length > 0 && (
-            <div className={styles.locationDetailsSection}>
-              <h3>Software</h3>
-              <div className={styles.detailsList}>
-                {location.software.map(item => (
-                  <span key={item} className={styles.detailsItem}>{item}</span>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {/* Services */}
-          {location.services && location.services.length > 0 && (
-            <div className={styles.locationDetailsSection}>
-              <h3>Services</h3>
-              <div className={styles.detailsList}>
-                {location.services.map(service => (
-                  <span key={service} className={styles.detailsItem}>{service}</span>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {/* Food options */}
-          {location.foodOptions && location.foodOptions.length > 0 && (
-            <div className={styles.locationDetailsSection}>
-              <h3>Food Options</h3>
-              <div className={styles.detailsList}>
-                {location.foodOptions.map(option => (
-                  <span key={option} className={styles.detailsItem}>{option}</span>
-                ))}
-              </div>
-            </div>
-          )}
+            </div>          )}
         </div>
         
         {/* Floor plan or location image */}
@@ -239,16 +176,15 @@ export async function getStaticProps({ params }) {
   if (!location) {
     return {
       notFound: true,
-    };
-  }
+    };  }
   
   // Find related locations (same category but not the current location)
   const relatedLocations = locations
     .filter(loc => loc.category === location.category && loc.id !== location.id)
     .slice(0, 3);
   
-  // Get the images for this location from our manual mapping
-  const images = locationImages[locationId] || locationImages.default;
+  // Get the images for this location
+  const images = location.images || [defaultLocationImage];
   
   return {
     props: {

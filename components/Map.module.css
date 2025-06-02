@@ -32,14 +32,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0.75rem 1rem;
+  justify-content: center;
+  padding: 0.75rem 0.5rem;
   background-color: #f5f5f5;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 0.9rem;
-  min-width: 90px;
+  font-size: 0.85rem;
+  width: 120px;
+  height: 80px;
+  text-align: center;
 }
 
 .categoryButton:hover {
@@ -329,6 +332,90 @@
   object-fit: cover;
 }
 
+/* List layout for locations */
+.locationsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.locationListItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  color: inherit;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.locationListItem:hover {
+  border-color: #0070f3;
+  box-shadow: 0 2px 8px rgba(0, 112, 243, 0.1);
+  transform: translateX(4px);
+}
+
+.locationListContent {
+  flex: 1;
+}
+
+.locationListHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.locationListTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+}
+
+.locationBuildingInfo {
+  font-size: 0.85rem;
+  color: #666;
+  background-color: #f5f5f5;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.locationListDescription {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0.5rem 0;
+  line-height: 1.4;
+}
+
+.locationCategory {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: #0070f3;
+  background-color: rgba(0, 112, 243, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  margin-top: 0.5rem;
+}
+
+.viewDetails {
+  color: #0070f3;
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-left: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.locationListItem:hover .viewDetails {
+  transform: translateX(4px);
+}
+
 /* Mobile-friendly styles */
 @media (max-width: 768px) {
   .buildingGrid {
@@ -338,10 +425,11 @@
   .title {
     font-size: 2rem;
   }
-  
-  .categoryButton {
-    min-width: 80px;
-    padding: 0.6rem 0.8rem;
+    .categoryButton {
+    width: 100px;
+    height: 70px;
+    padding: 0.5rem 0.25rem;
+    font-size: 0.8rem;
   }
   
   .categoryIcon {
