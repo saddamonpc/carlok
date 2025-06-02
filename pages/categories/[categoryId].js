@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import Layout from '../../components/layout';
 import styles from '../../components/Map.module.css';
-import { locations } from '../../lib/data/locations';
+import { locations } from '../../lib/data/locations.db';
 import { categories } from '../../lib/data/categories';
 
 export default function CategoryPage({ category, categoryLocations }) {
