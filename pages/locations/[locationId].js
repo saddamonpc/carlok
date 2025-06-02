@@ -94,15 +94,14 @@ export default function LocationPage({ location, relatedLocations, images }) {
           {/* Building-specific details */}
           {location.category === 'buildings' && location.floors && location.floors.length > 0 && (
             <div className={styles.locationDetailsSection}>
-              <h3>Floors</h3>
-              <div className={styles.floorNav}>
+              <h3>Floors</h3>              <div className={styles.floorNav}>
                 {location.floors.map((floor, index) => (
                   <button
                     key={floor}
                     onClick={() => setSelectedFloorIndex(index)}
                     className={`${styles.floorNavItem} ${selectedFloorIndex === index ? styles.floorNavItemActive : ''}`}
                   >
-                    {floor}
+                    {floor.split(' - ').pop()}
                   </button>
                 ))}
               </div>
@@ -112,13 +111,12 @@ export default function LocationPage({ location, relatedLocations, images }) {
           {/* Location in building */}
           {location.building && (
             <div className={styles.locationDetailsSection}>
-              <h3>Location</h3>
-              <p>
+              <h3>Location</h3>              <p>
                 Located in{' '}
                 <Link href={`/locations/${location.building}`} className={styles.locationLink}>
                   {locations.find(l => l.id === location.building)?.name}
                 </Link>
-                {location.floor && <span>, {location.floor}</span>}
+                {location.floor && <span>, {location.floor.split(' - ').pop()}</span>}
               </p>
             </div>          )}
         </div>
