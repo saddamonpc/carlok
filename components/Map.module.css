@@ -500,16 +500,23 @@
   width: 100%;
 }
 
-.searchInputWrapper {
-  position: relative;
+.searchForm {
+  display: flex;
+  align-items: center;
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
 }
 
+.searchInputWrapper {
+  position: relative;
+  flex: 1;
+  width: 100%;
+}
+
 .searchInput {
   width: 100%;
-  padding: 12px 40px 12px 16px;
+  padding: 12px 80px 12px 16px; /* More padding on right for both buttons */
   font-size: 16px; /* Prevents zoom on iOS */
   border: 2px solid #e1e5e9;
   border-radius: 12px;
@@ -533,17 +540,17 @@
 
 .clearSearchButton {
   position: absolute;
-  right: 12px;
+  right: 48px; /* Moved further left to make room for submit button */
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: 16px;
   color: #666;
   cursor: pointer;
-  padding: 8px;
-  min-width: 44px; /* iOS touch target minimum */
-  min-height: 44px;
+  padding: 6px;
+  min-width: 28px; /* Slightly smaller */
+  min-height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -552,13 +559,52 @@
 }
 
 .clearSearchButton:hover {
-  background-color: #f5f5f5;
-  color: #333;
+  background-color: transparent;
+  color: #dc3545;
 }
 
 .clearSearchButton:active {
-  background-color: #e5e5e5;
+  background-color: transparent;
+  color: #dc3545;
   transform: translateY(-50%) scale(0.95);
+}
+
+.searchSubmitButton {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #0070f3;
+  cursor: pointer;
+  font-size: 18px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.searchSubmitButton:hover:not(:disabled) {
+  background: rgba(0, 112, 243, 0.1);
+  color: #0056b3;
+  transform: translateY(-50%) scale(1.05);
+}
+
+.searchSubmitButton:active:not(:disabled) {
+  transform: translateY(-50%) scale(0.95);
+  background: rgba(0, 112, 243, 0.2);
+}
+
+.searchSubmitButton:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+  transform: translateY(-50%);
 }
 
 /* Mobile responsive filters */
@@ -641,17 +687,30 @@
     margin-bottom: 1.5rem;
   }
   
+  .searchForm {
+    gap: 0; /* No gap needed since button is inside */
+  }
+  
   .searchInput {
     font-size: 16px; /* Prevents zoom on iOS */
-    padding: 14px 44px 14px 16px;
+    padding: 14px 80px 14px 16px;
     border-radius: 10px;
   }
   
   .clearSearchButton {
+    right: 44px; /* Adjusted for mobile */
+    padding: 8px;
+    min-width: 32px;
+    min-height: 32px;
+    font-size: 14px;
+  }
+  
+  .searchSubmitButton {
     right: 8px;
-    padding: 10px;
-    min-width: 40px;
-    min-height: 40px;
+    padding: 8px;
+    min-width: 32px;
+    min-height: 32px;
+    font-size: 16px;
   }
 }
 
@@ -660,15 +719,29 @@
     margin-bottom: 1rem;
   }
   
+  .searchForm {
+    gap: 0;
+  }
+  
   .searchInput {
-    padding: 12px 40px 12px 14px;
+    padding: 12px 72px 12px 14px;
     font-size: 16px;
     border-radius: 8px;
   }
   
   .clearSearchButton {
+    right: 40px;
+    font-size: 14px;
+    min-width: 28px;
+    min-height: 28px;
+  }
+  
+  .searchSubmitButton {
     right: 6px;
-    font-size: 16px;
+    padding: 6px;
+    min-width: 28px;
+    min-height: 28px;
+    font-size: 14px;
   }
 }
 

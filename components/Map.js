@@ -11,80 +11,29 @@ export default function Map() {
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [selectedFloor, setSelectedFloor] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-
   // Function to normalize room names for better search matching
   const normalizeRoomName = (text) => {
-    return text
-      .toLowerCase()
-      .replace(/\s+/g, '') // Remove all spaces
-      .replace(/\./g, '') // Remove all dots
-      .replace(/^r\b/, 'ruang') // Replace "r" at start with "ruang"
-      .replace(/^lab\b/, 'laboratorium') // Replace "lab" with "laboratorium"
-      .replace(/ruang/g, '') // Remove "ruang" for comparison
-      .replace(/laboratorium/g, '') // Remove "laboratorium" for comparison
-      .trim();
-  };
-  // Enhanced location data with normalized search fields
+    return text.toLowerCase().trim();
+  };  // Enhanced location data with normalized search fields
   const enhancedLocations = useMemo(() => {
     return locations.map(location => ({
       ...location,
       normalizedName: normalizeRoomName(location.name),
       normalizedId: normalizeRoomName(location.id),
-      searchableText: `${location.name} ${location.id} ${location.description}`.toLowerCase(),
-      // Enhanced room number extraction - multiple patterns
-      roomNumber: (() => {
-        const id = location.id.toLowerCase();
-        const name = location.name.toLowerCase();
-        const patterns = [
-          id.match(/[a-z]?\d+/g)?.join('') || '', // A401 -> a401
-          id.match(/\d+/g)?.join('') || '',       // Extract just numbers: 401
-          name.match(/\d+/g)?.join('') || '',     // Extract numbers from name
-          id.replace(/[^a-z0-9]/g, ''),           // Remove all special chars
-        ];
-        return [...new Set(patterns.filter(p => p))].join(' '); // Unique patterns
-      })(),
-      variations: [
-        location.name,
-        location.id,
-        location.id.toLowerCase(),
-        location.id.toUpperCase(),
-        `Ruang ${location.id}`,
-        `R. ${location.id}`,
-        `R.${location.id}`,
-        `Rm. ${location.id}`,
-        `Rm ${location.id}`,
-        `Rg. ${location.id}`,
-        location.id.replace(/(\w)(\d)/g, '$1.$2'), // Add dots between letters and numbers
-        location.id.replace(/(\w)(\d)(\d)(\d)/g, '$1.$2.$3.$4'), // Format like A.4.0.1
-        location.id.replace(/(\w)(\d)(\d)(\d)/g, '$1 $2$3$4'), // Format like A 401
-        location.id.replace(/(\w)(\d)(\d)(\d)/g, '$1-$2$3$4'), // Format like A-401
-        // Handle lab variations
-        location.name.replace(/laboratorium/gi, 'lab'),
-        location.name.replace(/lab/gi, 'laboratorium'),
-      ].join(' ').toLowerCase()
+      searchableText: `${location.name} ${location.id} ${location.description}`.toLowerCase()
     }));
   }, []);
-  // Configure Fuse.js for fuzzy search with enhanced keys - prioritizing room numbers
+  // Configure Fuse.js for fuzzy search with default settings
   const fuseOptions = {
     keys: [
-      { name: 'id', weight: 0.6 },           // Highest priority for exact room IDs (A401, B102, etc.)
-      { name: 'roomNumber', weight: 0.5 },   // High priority for extracted room numbers  
-      { name: 'normalizedId', weight: 0.4 }, // High priority for normalized room IDs
-      { name: 'name', weight: 0.2 },         // Lower priority for room names
-      { name: 'normalizedName', weight: 0.2 },
-      { name: 'variations', weight: 0.3 },   // Medium priority for room variations
-      { name: 'searchableText', weight: 0.1 },
-      { name: 'description', weight: 0.05 }  // Lowest priority for descriptions
+      'name',
+      'id'
     ],
-    threshold: 0.3, // More strict for better room number matching
+    threshold: 0.3, // Default threshold (0.0 = perfect match, 1.0 = match anything)
     includeScore: true,
     includeMatches: true,
     ignoreLocation: true,
-    findAllMatches: true,
-    // Additional options for better room number matching
-    shouldSort: true,
-    minMatchCharLength: 1,
-    ignoreFieldNorm: true // Ignore field length normalization for better exact matches
+    findAllMatches: true
   };
 
   const fuse = useMemo(() => new Fuse(enhancedLocations, fuseOptions), [enhancedLocations]);
@@ -123,47 +72,8 @@ export default function Map() {
 
     // Apply search filter first if there's a search query
     if (searchQuery.trim()) {
-      // Normalize the search query for better matching
-      const normalizedQuery = normalizeRoomName(searchQuery.trim());
-      const originalQuery = searchQuery.trim();
-      
-      // Search with both original and normalized query
-      const searchResults = fuse.search(originalQuery);
-      const normalizedResults = normalizedQuery !== originalQuery.toLowerCase() 
-        ? fuse.search(normalizedQuery) 
-        : [];
-      
-      // Combine results and remove duplicates
-      const combinedResults = [...searchResults, ...normalizedResults];
-      const uniqueResults = combinedResults.filter((result, index, self) => 
-        index === self.findIndex(r => r.item.id === result.item.id)
-      );
-      
-      // Enhanced scoring: boost exact room ID matches
-      const enhancedResults = uniqueResults.map(result => {
-        let boost = 0;
-        const item = result.item;
-        const query = originalQuery.toLowerCase();
-        
-        // Strong boost for exact ID matches
-        if (item.id.toLowerCase() === query) boost -= 0.5;
-        
-        // Medium boost for ID starting with query
-        else if (item.id.toLowerCase().startsWith(query)) boost -= 0.3;
-        
-        // Small boost for room number matches
-        else if (item.roomNumber.includes(query.replace(/[^0-9]/g, ''))) boost -= 0.2;
-        
-        return {
-          ...result,
-          score: (result.score || 0) + boost
-        };
-      });
-      
-      // Sort by enhanced score (lower is better in Fuse.js)
-      const sortedResults = enhancedResults.sort((a, b) => (a.score || 0) - (b.score || 0));
-      
-      filtered = sortedResults.map(result => result.item);
+      const searchResults = fuse.search(searchQuery.trim());
+      filtered = searchResults.map(result => result.item);
     }
 
     // Filter by category
@@ -199,24 +109,50 @@ export default function Map() {
         <h1 className={styles.title}>Fasilkom UI Campus Map</h1>
         <p className={styles.subtitle}>Explore rooms / locations by category</p>        {/* Search Bar */}
         <div className={styles.searchContainer}>
-          <div className={styles.searchInputWrapper}>
-            <input
-              type="text"
-              placeholder="Search locations (e.g., 'Ruang 2404', 'A102' 'Lab 1106', 'Alfan')..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={styles.searchInput}
-            />
-            {searchQuery && (
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (searchQuery.trim()) {
+                // Gently scroll to results section
+                const resultsSection = document.querySelector(`.${styles.categoryHeader}`);
+                if (resultsSection) {
+                  resultsSection.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                  });
+                }
+              }
+            }}
+            className={styles.searchForm}
+          >
+            <div className={styles.searchInputWrapper}>
+              <input
+                type="text"
+                placeholder="Search locations..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.searchInput}
+              />
               <button
-                onClick={() => setSearchQuery('')}
-                className={styles.clearSearchButton}
-                aria-label="Clear search"
+                type="submit"
+                className={styles.searchSubmitButton}
+                disabled={!searchQuery.trim()}
+                aria-label="Search"
               >
-                ✕
+                🔍
               </button>
-            )}
-          </div>
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className={styles.clearSearchButton}
+                  aria-label="Clear search"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </form>
         </div><div className={styles.categoriesContainer}>
           {sortedCategories.map((category) => (
             <Link
