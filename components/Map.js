@@ -11,11 +11,47 @@ export default function Map() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [selectedFloor, setSelectedFloor] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  // Function to normalize room names for better search matching
+  const [searchQuery, setSearchQuery] = useState('');  // Function to normalize room names for better search matching
   const normalizeRoomName = (text) => {
     return text.toLowerCase().trim();
-  };  // Enhanced location data with normalized search fields
+  };  // Function to clean search query by removing honorifics and room prefixes
+  const cleanSearchQuery = (query) => {
+    const honorifics = [
+      'pak', 'bpk', 'bu', 'bapak', 'ibu',
+      'prof.', 'prof', 'professor',
+      'dr.', 'dr', 'doktor',
+      'drs.', 'drs',
+      'ir.', 'ir',
+      'mr.', 'mr', 'mrs.', 'mrs', 'ms.', 'ms'
+    ];
+    
+    const roomPrefixes = [
+      'ruang', 'ruangan', 'r.', 'r'
+    ];
+    
+    let cleanQuery = query.toLowerCase().trim();
+    
+    // Remove honorifics from anywhere in the query (followed by space)
+    for (const honorific of honorifics) {
+      const pattern = new RegExp(`\\b${honorific}\\s+`, 'gi');
+      cleanQuery = cleanQuery.replace(pattern, '');
+    }
+    
+    // Remove room prefixes from anywhere in the query (followed by space)
+    for (const prefix of roomPrefixes) {
+      const pattern = new RegExp(`\\b${prefix}\\s+`, 'gi');
+      cleanQuery = cleanQuery.replace(pattern, '');
+    }
+    
+    // Remove periods from room numbers (e.g., "A.1.01" becomes "A101")
+    cleanQuery = cleanQuery.replace(/([a-zA-Z])\.([0-9])/g, '$1$2');
+    cleanQuery = cleanQuery.replace(/([0-9])\.([0-9])/g, '$1$2');
+    
+    // Clean up multiple spaces and trim
+    cleanQuery = cleanQuery.replace(/\s+/g, ' ').trim();
+    
+    return cleanQuery;
+  };// Enhanced location data with normalized search fields
   const enhancedLocations = useMemo(() => {
     return locations.map(location => ({
       ...location,
@@ -23,14 +59,14 @@ export default function Map() {
       normalizedId: normalizeRoomName(location.id),
       searchableText: `${location.name} ${location.id} ${location.description}`.toLowerCase()
     }));
-  }, []);
-  // Configure Fuse.js for fuzzy search with default settings
+  }, []);  // Configure Fuse.js for fuzzy search with stricter matching
   const fuseOptions = {
     keys: [
       'name',
-      'id'
+      'id',
+      'description'
     ],
-    threshold: 0.3, // Default threshold (0.0 = perfect match, 1.0 = match anything)
+    threshold: 0.2, // Lower threshold for more precise matching (0.0 = perfect match, 1.0 = match anything)
     includeScore: true,
     includeMatches: true,
     ignoreLocation: true,
@@ -69,11 +105,11 @@ export default function Map() {
         })
     : [];  // Filter locations based on selected filters and search query
   const filteredLocations = (() => {
-    let filtered = locations;
-
-    // Apply search filter first if there's a search query
+    let filtered = locations;    // Apply search filter first if there's a search query
     if (searchQuery.trim()) {
-      const searchResults = fuse.search(searchQuery.trim());
+      // Clean search query by removing honorifics and room prefixes
+      const cleanQuery = cleanSearchQuery(searchQuery.trim());
+      const searchResults = fuse.search(cleanQuery);
       filtered = searchResults.map(result => result.item);
     }
 
