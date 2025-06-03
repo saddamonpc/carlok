@@ -20,10 +20,9 @@ export default function CategoryPage({ category, categoryLocations }) {
         <meta name="description" content={`Browse all ${category.name.toLowerCase()} on campus`} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      
-      <div className={styles.mapContainer}>
+        <div className={styles.mapContainer}>
         <div className={styles.backLink}>
-          <Link href="/maps">
+          <Link href="/">
             ← Back to campus map
           </Link>
         </div>

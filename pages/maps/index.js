@@ -1,10 +1,12 @@
-import Layout from '../../components/layout';
-import Map from '../../components/Map';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 export default function MapsPage() {
-  return (
-    <Layout>
-      <Map />
-    </Layout>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/');
+  }, [router]);
+
+  return null;
 }
