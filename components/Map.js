@@ -107,7 +107,8 @@ export default function Map() {
       </Head>
         <div className={styles.mapContainer}>
         <h1 className={styles.title}>Fasilkom UI Campus Map</h1>
-        <p className={styles.subtitle}>Explore rooms / locations by category</p>        {/* Search Bar */}
+        <p className={styles.subtitle}>Explore rooms / locations by category</p>
+        {/* Search Bar */}
         <div className={styles.searchContainer}>
           <form 
             onSubmit={(e) => {

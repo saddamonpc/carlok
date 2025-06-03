@@ -25,7 +25,7 @@ export default function BuildingPage({ buildingName, floors }) {
       
       <div className={styles.mapContainer}>
         <div className={styles.backLink}>
-          <Link href="/maps">
+          <Link href="/">
             ← Back to all buildings
           </Link>
         </div>

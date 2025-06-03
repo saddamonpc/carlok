@@ -39,11 +39,11 @@ export default function Layout({ children, home }) {
           <>
             <Image
               priority
-              src="/images/profile.jpg"
-              className={utilStyles.borderCircle}
-              height={144}
-              width={144}
+              src="/images/makara_fasilkom.png"
+              height={147}
+              width={400}
               alt={name}
+              style={{ objectFit: 'contain' }}
             />
             <h1 className={utilStyles.heading2Xl}>{name}</h1>
           </>
@@ -52,18 +52,18 @@ export default function Layout({ children, home }) {
             <Link href="/">
               <Image
                 priority
-                src="/images/profile.jpg"
-                className={utilStyles.borderCircle}
-                height={108}
-                width={108}
+                src="/images/makara_fasilkom.png"
+                height={147}
+                width={400}
                 alt={name}
+                style={{ objectFit: 'contain' }}
               />
             </Link>
-            <h2 className={utilStyles.headingLg}>
+            <h1 className={utilStyles.heading2Xl}>
               <Link href="/" className={utilStyles.colorInherit}>
                 {name}
               </Link>
-            </h2>
+            </h1>
           </>
         )}
       </header>
