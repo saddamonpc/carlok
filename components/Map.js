@@ -118,21 +118,20 @@ export default function Map() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>        <div className={styles.mapContainer}>
         <h1 className={styles.title}>Peta Kampus Fasilkom UI</h1>
-        <p className={styles.subtitle}>Cari lokasi / ruangan berdasarkan kategori</p>
+        <p className={styles.subtitle}>Cari lokasi / ruangan berdasarkan kategori, bangunan, dan lantai.</p>
         
         {/* Main Search Bar */}
         <SearchBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onSubmit={handleSearch}
-          placeholder="Search locations..."
+          placeholder="Cari lokasi..."
         />        <div className={styles.categoriesContainer}>
           {sortedCategories.map((category) => (
             <Link
               key={category.id}
               href={`/categories/${category.id}`}
-              className={`${styles.categoryButton} ${selectedCategory === category.id ? styles.categoryButtonActive : ''}`}
-              onClick={(e) => {
+              className={`${styles.categoryButton} ${selectedCategory === category.id ? styles.categoryButtonActive : ''}`}              onClick={(e) => {
                 e.preventDefault();
                 // Toggle category selection - if already selected, deselect it
                 if (selectedCategory === category.id) {
@@ -140,9 +139,7 @@ export default function Map() {
                 } else {
                   setSelectedCategory(category.id);
                 }
-                // Reset building and floor when category changes
-                setSelectedBuilding(null);
-                setSelectedFloor(null);
+                // Keep both building and floor filters when category changes
               }}
             >
               <span className={styles.categoryIcon}>{category.icon}</span>
@@ -198,17 +195,16 @@ export default function Map() {
               </select>
             </div>
           )}          {/* Clear Filters Button */}
-          {(selectedCategory || selectedBuilding || selectedFloor || searchQuery) && (
+          {(selectedCategory || selectedBuilding || selectedFloor) && (
             <button
               onClick={() => {
                 setSelectedCategory(null);
                 setSelectedBuilding(null);
                 setSelectedFloor(null);
-                setSearchQuery('');
               }}
               className={styles.clearFiltersButton}
             >
-              Clear All Filters
+              Reset Filter
             </button>
           )}
         </div>
