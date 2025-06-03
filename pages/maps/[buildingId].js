@@ -54,6 +54,7 @@ export async function getStaticPaths() {
       { params: { buildingId: 'gedung-a' } },
       { params: { buildingId: 'gedung-b' } },
       { params: { buildingId: 'gedung-c' } },
+      { params: { buildingId: 'gedung-baru' } },
     ],
     fallback: false,
   };
@@ -64,6 +65,7 @@ export async function getStaticProps({ params }) {
     'gedung-a': 'Gedung A',
     'gedung-b': 'Gedung B',
     'gedung-c': 'Gedung C',
+    'gedung-baru': 'Gedung Baru',
   };
   
   const buildingName = buildingMap[params.buildingId];
