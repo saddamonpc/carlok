@@ -107,8 +107,7 @@ export default function LocationPage({ location, relatedLocations, images }) {
               </div>
             </div>
           )}
-          
-          {/* Location in building */}
+            {/* Location in building */}
           {location.building && (
             <div className={styles.locationDetailsSection}>
               <h3>Location</h3>              <p>
@@ -116,7 +115,14 @@ export default function LocationPage({ location, relatedLocations, images }) {
                 <Link href={`/locations/${location.building}`} className={styles.locationLink}>
                   {locations.find(l => l.id === location.building)?.name}
                 </Link>
-                {location.floor && <span>, {location.floor.split(' - ').pop()}</span>}
+                {location.floor && (
+                  <span>
+                    , {location.floor.includes(' - ') 
+                        ? location.floor.split(' - ').pop() 
+                        : location.floor.replace(/^Gedung [A-Z]\s+/, '')
+                      }
+                  </span>
+                )}
               </p>
             </div>          )}
         </div>

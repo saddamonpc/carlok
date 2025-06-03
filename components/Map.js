@@ -106,8 +106,8 @@ export default function Map() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
         <div className={styles.mapContainer}>
-        <h1 className={styles.title}>Fasilkom UI Campus Map</h1>
-        <p className={styles.subtitle}>Explore rooms / locations by category</p>
+        <h1 className={styles.title}>Peta Kampus Fasilkom UI</h1>
+        <p className={styles.subtitle}>Cari lokasi / ruangan berdasarkan kategori</p>
         {/* Search Bar */}
         <div className={styles.searchContainer}>
           <form 
@@ -262,15 +262,15 @@ export default function Map() {
               
               return parts.join(' ');
             })()}
-          </h2>
-          <div className={styles.resultsCount}>
-            {filteredLocations.length} location{filteredLocations.length !== 1 ? 's' : ''} found
+          </h2>          <div className={styles.resultsCount}>
+            {filteredLocations.length} lokasi ditemukan
           </div>
-          {selectedCategory && (
+          {/* Uncomment this section if you want to show a "View All" link for the selected category */}
+          {/* {selectedCategory && (
             <Link href={`/categories/${selectedCategory}`} className={styles.viewAllLink}>
-              View all {categories.find(c => c.id === selectedCategory)?.name} →
+              Lihat semua {categories.find(c => c.id === selectedCategory)?.name} →
             </Link>
-          )}
+          )} */}
         </div>
           <div className={styles.locationsList}>
           {filteredLocations.map((location) => (
