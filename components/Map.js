@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import Fuse from 'fuse.js';
 import styles from './Map.module.css';
+import SearchBar from './SearchBar';
 import { categories } from '../lib/data/categories';
 import { locations } from '../lib/data/locations.db';
 
@@ -10,81 +11,66 @@ export default function Map() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [selectedFloor, setSelectedFloor] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  // Function to normalize room names for better search matching
+  const [searchQuery, setSearchQuery] = useState('');  // Function to normalize room names for better search matching
   const normalizeRoomName = (text) => {
-    return text
-      .toLowerCase()
-      .replace(/\s+/g, '') // Remove all spaces
-      .replace(/\./g, '') // Remove all dots
-      .replace(/^r\b/, 'ruang') // Replace "r" at start with "ruang"
-      .replace(/^lab\b/, 'laboratorium') // Replace "lab" with "laboratorium"
-      .replace(/ruang/g, '') // Remove "ruang" for comparison
-      .replace(/laboratorium/g, '') // Remove "laboratorium" for comparison
-      .trim();
-  };
-  // Enhanced location data with normalized search fields
+    return text.toLowerCase().trim();
+  };  // Function to clean search query by removing honorifics and room prefixes
+  const cleanSearchQuery = (query) => {
+    const honorifics = [
+      'pak', 'bpk', 'bu', 'bapak', 'ibu',
+      'prof.', 'prof', 'professor',
+      'dr.', 'dr', 'doktor',
+      'drs.', 'drs',
+      'ir.', 'ir',
+      'mr.', 'mr', 'mrs.', 'mrs', 'ms.', 'ms'
+    ];
+    
+    const roomPrefixes = [
+      'ruang', 'ruangan', 'r.', 'r', 'kantor'
+    ];
+    
+    let cleanQuery = query.toLowerCase().trim();
+    
+    // Remove honorifics from anywhere in the query (followed by space)
+    for (const honorific of honorifics) {
+      const pattern = new RegExp(`\\b${honorific}\\s+`, 'gi');
+      cleanQuery = cleanQuery.replace(pattern, '');
+    }
+    
+    // Remove room prefixes from anywhere in the query (followed by space)
+    for (const prefix of roomPrefixes) {
+      const pattern = new RegExp(`\\b${prefix}\\s+`, 'gi');
+      cleanQuery = cleanQuery.replace(pattern, '');
+    }
+    
+    // Remove periods from room numbers (e.g., "A.1.01" becomes "A101")
+    cleanQuery = cleanQuery.replace(/([a-zA-Z])\.([0-9])/g, '$1$2');
+    cleanQuery = cleanQuery.replace(/([0-9])\.([0-9])/g, '$1$2');
+    
+    // Clean up multiple spaces and trim
+    cleanQuery = cleanQuery.replace(/\s+/g, ' ').trim();
+    
+    return cleanQuery;
+  };// Enhanced location data with normalized search fields
   const enhancedLocations = useMemo(() => {
     return locations.map(location => ({
       ...location,
       normalizedName: normalizeRoomName(location.name),
       normalizedId: normalizeRoomName(location.id),
-      searchableText: `${location.name} ${location.id} ${location.description}`.toLowerCase(),
-      // Enhanced room number extraction - multiple patterns
-      roomNumber: (() => {
-        const id = location.id.toLowerCase();
-        const name = location.name.toLowerCase();
-        const patterns = [
-          id.match(/[a-z]?\d+/g)?.join('') || '', // A401 -> a401
-          id.match(/\d+/g)?.join('') || '',       // Extract just numbers: 401
-          name.match(/\d+/g)?.join('') || '',     // Extract numbers from name
-          id.replace(/[^a-z0-9]/g, ''),           // Remove all special chars
-        ];
-        return [...new Set(patterns.filter(p => p))].join(' '); // Unique patterns
-      })(),
-      variations: [
-        location.name,
-        location.id,
-        location.id.toLowerCase(),
-        location.id.toUpperCase(),
-        `Ruang ${location.id}`,
-        `R. ${location.id}`,
-        `R.${location.id}`,
-        `Rm. ${location.id}`,
-        `Rm ${location.id}`,
-        `Rg. ${location.id}`,
-        location.id.replace(/(\w)(\d)/g, '$1.$2'), // Add dots between letters and numbers
-        location.id.replace(/(\w)(\d)(\d)(\d)/g, '$1.$2.$3.$4'), // Format like A.4.0.1
-        location.id.replace(/(\w)(\d)(\d)(\d)/g, '$1 $2$3$4'), // Format like A 401
-        location.id.replace(/(\w)(\d)(\d)(\d)/g, '$1-$2$3$4'), // Format like A-401
-        // Handle lab variations
-        location.name.replace(/laboratorium/gi, 'lab'),
-        location.name.replace(/lab/gi, 'laboratorium'),
-      ].join(' ').toLowerCase()
+      searchableText: `${location.name} ${location.id} ${location.description}`.toLowerCase()
     }));
-  }, []);
-  // Configure Fuse.js for fuzzy search with enhanced keys - prioritizing room numbers
+  }, []);  // Configure Fuse.js for fuzzy search with stricter matching
   const fuseOptions = {
     keys: [
-      { name: 'id', weight: 0.6 },           // Highest priority for exact room IDs (A401, B102, etc.)
-      { name: 'roomNumber', weight: 0.5 },   // High priority for extracted room numbers  
-      { name: 'normalizedId', weight: 0.4 }, // High priority for normalized room IDs
-      { name: 'name', weight: 0.2 },         // Lower priority for room names
-      { name: 'normalizedName', weight: 0.2 },
-      { name: 'variations', weight: 0.3 },   // Medium priority for room variations
-      { name: 'searchableText', weight: 0.1 },
-      { name: 'description', weight: 0.05 }  // Lowest priority for descriptions
+      'name',
+      'id',
+      'description'
     ],
-    threshold: 0.3, // More strict for better room number matching
+    threshold: 0.2, // Lower threshold for more precise matching (0.0 = perfect match, 1.0 = match anything)
     includeScore: true,
     includeMatches: true,
     ignoreLocation: true,
-    findAllMatches: true,
-    // Additional options for better room number matching
-    shouldSort: true,
-    minMatchCharLength: 1,
-    ignoreFieldNorm: true // Ignore field length normalization for better exact matches
+    findAllMatches: true
   };
 
   const fuse = useMemo(() => new Fuse(enhancedLocations, fuseOptions), [enhancedLocations]);
@@ -119,51 +105,12 @@ export default function Map() {
         })
     : [];  // Filter locations based on selected filters and search query
   const filteredLocations = (() => {
-    let filtered = locations;
-
-    // Apply search filter first if there's a search query
+    let filtered = locations;    // Apply search filter first if there's a search query
     if (searchQuery.trim()) {
-      // Normalize the search query for better matching
-      const normalizedQuery = normalizeRoomName(searchQuery.trim());
-      const originalQuery = searchQuery.trim();
-      
-      // Search with both original and normalized query
-      const searchResults = fuse.search(originalQuery);
-      const normalizedResults = normalizedQuery !== originalQuery.toLowerCase() 
-        ? fuse.search(normalizedQuery) 
-        : [];
-      
-      // Combine results and remove duplicates
-      const combinedResults = [...searchResults, ...normalizedResults];
-      const uniqueResults = combinedResults.filter((result, index, self) => 
-        index === self.findIndex(r => r.item.id === result.item.id)
-      );
-      
-      // Enhanced scoring: boost exact room ID matches
-      const enhancedResults = uniqueResults.map(result => {
-        let boost = 0;
-        const item = result.item;
-        const query = originalQuery.toLowerCase();
-        
-        // Strong boost for exact ID matches
-        if (item.id.toLowerCase() === query) boost -= 0.5;
-        
-        // Medium boost for ID starting with query
-        else if (item.id.toLowerCase().startsWith(query)) boost -= 0.3;
-        
-        // Small boost for room number matches
-        else if (item.roomNumber.includes(query.replace(/[^0-9]/g, ''))) boost -= 0.2;
-        
-        return {
-          ...result,
-          score: (result.score || 0) + boost
-        };
-      });
-      
-      // Sort by enhanced score (lower is better in Fuse.js)
-      const sortedResults = enhancedResults.sort((a, b) => (a.score || 0) - (b.score || 0));
-      
-      filtered = sortedResults.map(result => result.item);
+      // Clean search query by removing honorifics and room prefixes
+      const cleanQuery = cleanSearchQuery(searchQuery.trim());
+      const searchResults = fuse.search(cleanQuery);
+      filtered = searchResults.map(result => result.item);
     }
 
     // Filter by category
@@ -184,9 +131,20 @@ export default function Map() {
 
     return filtered;
   })();
-
   // Sort categories alphabetically by name
   const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name));
+
+  // Handle search functionality
+  const handleSearch = () => {
+    // Gently scroll to results section
+    const resultsSection = document.querySelector(`.${styles.categoryHeader}`);
+    if (resultsSection) {
+      resultsSection.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+  };
 
   return (
     <>
@@ -194,82 +152,84 @@ export default function Map() {
         <title>Fasilkom UI Campus Map</title>
         <meta name="description" content="Interactive campus map" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
-        <div className={styles.mapContainer}>
-        <h1 className={styles.title}>Fasilkom UI Campus Map</h1>
-        <p className={styles.subtitle}>Explore rooms / locations by category</p>        {/* Search Bar */}
-        <div className={styles.searchContainer}>
-          <div className={styles.searchInputWrapper}>
-            <input
-              type="text"
-              placeholder="Search locations (e.g., 'Ruang 2404', 'A102' 'Lab 1106', 'Alfan')..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={styles.searchInput}
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className={styles.clearSearchButton}
-                aria-label="Clear search"
-              >
-                ✕
-              </button>
-            )}
-          </div>
+      </Head>        <div className={styles.mapContainer}>
+        <h1 className={styles.title}>Peta Kampus Fasilkom UI</h1>
+        <p className={styles.subtitle}>Cari lokasi / ruangan berdasarkan kategori, bangunan, dan lantai.</p>
+        
+        {/* Search Bar Section with Floating Results Counter */}
+        <div className={styles.searchBarSection}>
+          <SearchBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSubmit={handleSearch}
+            placeholder="Cari lokasi..."
+          />
+          {searchQuery.trim() && (
+            <div className={styles.searchResultsCountFloating}>
+              {filteredLocations.length} lokasi ditemukan
+            </div>
+          )}
         </div><div className={styles.categoriesContainer}>
           {sortedCategories.map((category) => (
             <Link
               key={category.id}
               href={`/categories/${category.id}`}
-              className={`${styles.categoryButton} ${selectedCategory === category.id ? styles.categoryButtonActive : ''}`}
-              onClick={(e) => {
+              className={`${styles.categoryButton} ${selectedCategory === category.id ? styles.categoryButtonActive : ''}`}              onClick={(e) => {
                 e.preventDefault();
-                setSelectedCategory(category.id);
-                // Reset building and floor when category changes
-                setSelectedBuilding(null);
-                setSelectedFloor(null);
+                // Toggle category selection - if already selected, deselect it
+                if (selectedCategory === category.id) {
+                  setSelectedCategory(null);
+                } else {
+                  setSelectedCategory(category.id);
+                }
+                // Keep both building and floor filters when category changes
               }}
             >
               <span className={styles.categoryIcon}>{category.icon}</span>
               <span>{category.name}</span>
             </Link>
           ))}
-        </div>
-
-        {/* Building and Floor Filters */}
-        <div className={styles.filtersContainer}>
-          {/* Building Filter */}
+        </div>        {/* Building and Floor Filters */}
+        <div className={styles.filtersContainer}>          {/* Building Filter */}
           <div className={styles.filterGroup}>
-            <label htmlFor="building-select" className={styles.filterLabel}>Filter by Building:</label>
-            <select
-              id="building-select"
-              value={selectedBuilding || ''}
-              onChange={(e) => {
-                setSelectedBuilding(e.target.value || null);
-                setSelectedFloor(null); // Reset floor when building changes
-              }}
-              className={styles.filterSelect}
-            >
-              <option value="">All Buildings</option>
-              {buildings.map((building) => (
-                <option key={building.id} value={building.id}>
-                  {building.name}
-                </option>
+            <label className={styles.filterLabel}>Filter berdasarkan Gedung:</label>
+            <div className={styles.buildingButtons}>
+              {[
+                { id: 'gedung-a', name: 'Gedung A', abbr: 'A' },
+                { id: 'gedung-b', name: 'Gedung B', abbr: 'B' },
+                { id: 'gedung-c', name: 'Gedung C', abbr: 'C' },
+                { id: 'gedung-baru', name: 'Gedung Baru', abbr: 'BARU' }
+              ].map((building) => (
+                <button
+                  key={building.id}
+                  onClick={() => {
+                    // Toggle building selection
+                    if (selectedBuilding === building.id) {
+                      setSelectedBuilding(null);
+                    } else {
+                      setSelectedBuilding(building.id);
+                    }
+                    setSelectedFloor(null); // Reset floor when building changes
+                  }}
+                  className={`${styles.buildingButton} ${selectedBuilding === building.id ? styles.buildingButtonActive : ''}`}
+                  title={building.name}
+                >
+                  {building.abbr}
+                </button>
               ))}
-            </select>
+            </div>
           </div>
 
           {/* Floor Filter - only show if a building is selected */}
           {selectedBuilding && availableFloors.length > 0 && (
             <div className={styles.filterGroup}>
-              <label htmlFor="floor-select" className={styles.filterLabel}>Filter by Floor:</label>
+              <label htmlFor="floor-select" className={styles.filterLabel}>Filter berdasarkan Lantai:</label>
               <select
                 id="floor-select"
                 value={selectedFloor || ''}
                 onChange={(e) => setSelectedFloor(e.target.value || null)}
                 className={styles.filterSelect}
-              >                <option value="">All Floors</option>
+              >                <option value="">Semua Lantai</option>
                 {availableFloors.map((floor) => (
                   <option key={floor} value={floor}>
                     {floor.split(' - ').pop()}
@@ -278,17 +238,16 @@ export default function Map() {
               </select>
             </div>
           )}          {/* Clear Filters Button */}
-          {(selectedCategory || selectedBuilding || selectedFloor || searchQuery) && (
+          {(selectedCategory || selectedBuilding || selectedFloor) && (
             <button
               onClick={() => {
                 setSelectedCategory(null);
                 setSelectedBuilding(null);
                 setSelectedFloor(null);
-                setSearchQuery('');
               }}
               className={styles.clearFiltersButton}
             >
-              Clear All Filters
+              Reset Filter
             </button>
           )}
         </div>
@@ -297,17 +256,17 @@ export default function Map() {
               const parts = [];
               
               if (searchQuery.trim()) {
-                parts.push(`Search results for "${searchQuery}"`);
+                parts.push(`Hasil search untuk "${searchQuery}"`);
               } else if (selectedCategory) {
                 parts.push(categories.find(c => c.id === selectedCategory)?.name);
               } else {
-                parts.push('All Locations');
+                parts.push('Semua lokasi');
               }
               
               if (selectedBuilding) {
                 const buildingName = buildings.find(b => b.id === selectedBuilding)?.name;
                 if (!searchQuery.trim()) {
-                  parts.push(`in ${buildingName}`);
+                  parts.push(`di ${buildingName}`);
                 } else {
                   parts.push(`(${buildingName})`);
                 }
@@ -325,15 +284,15 @@ export default function Map() {
               
               return parts.join(' ');
             })()}
-          </h2>
-          <div className={styles.resultsCount}>
-            {filteredLocations.length} location{filteredLocations.length !== 1 ? 's' : ''} found
+          </h2>          <div className={styles.resultsCount}>
+            {filteredLocations.length} lokasi ditemukan
           </div>
-          {selectedCategory && (
+          {/* Uncomment this section if you want to show a "View All" link for the selected category */}
+          {/* {selectedCategory && (
             <Link href={`/categories/${selectedCategory}`} className={styles.viewAllLink}>
-              View all {categories.find(c => c.id === selectedCategory)?.name} →
+              Lihat semua {categories.find(c => c.id === selectedCategory)?.name} →
             </Link>
-          )}
+          )} */}
         </div>
           <div className={styles.locationsList}>
           {filteredLocations.map((location) => (

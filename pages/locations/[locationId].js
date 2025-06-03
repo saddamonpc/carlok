@@ -40,8 +40,8 @@ export default function LocationPage({ location, relatedLocations, images }) {
       
       <div className={styles.mapContainer}>
         <div className={styles.backLink}>
-          <Link href="/maps">
-            ← Back to campus map
+          <Link href="/">
+            ← Balik ke Peta Kampus
           </Link>
         </div>
         
@@ -58,7 +58,7 @@ export default function LocationPage({ location, relatedLocations, images }) {
           {/* Location images */}
           {images && images.length > 0 && (
             <div className={styles.locationImagesSection}>
-              <h3>Location Images</h3>
+              <h3>Foto-foto Lokasi</h3>
               <div className={styles.locationMainImage}>
                 <Image
                   src={images[selectedImageIndex]}
@@ -94,7 +94,7 @@ export default function LocationPage({ location, relatedLocations, images }) {
           {/* Building-specific details */}
           {location.category === 'buildings' && location.floors && location.floors.length > 0 && (
             <div className={styles.locationDetailsSection}>
-              <h3>Floors</h3>              <div className={styles.floorNav}>
+              <h3>Lantai</h3>              <div className={styles.floorNav}>
                 {location.floors.map((floor, index) => (
                   <button
                     key={floor}
@@ -107,16 +107,22 @@ export default function LocationPage({ location, relatedLocations, images }) {
               </div>
             </div>
           )}
-          
-          {/* Location in building */}
+            {/* Location in building */}
           {location.building && (
             <div className={styles.locationDetailsSection}>
-              <h3>Location</h3>              <p>
-                Located in{' '}
+              <h3>Lokasi</h3>              <p>
+                Terletak di{' '}
                 <Link href={`/locations/${location.building}`} className={styles.locationLink}>
                   {locations.find(l => l.id === location.building)?.name}
                 </Link>
-                {location.floor && <span>, {location.floor.split(' - ').pop()}</span>}
+                {location.floor && (
+                  <span>
+                    , {location.floor.includes(' - ') 
+                        ? location.floor.split(' - ').pop() 
+                        : location.floor.replace(/^Gedung [A-Z]\s+/, '')
+                      }
+                  </span>
+                )}
               </p>
             </div>          )}
         </div>
@@ -134,7 +140,7 @@ export default function LocationPage({ location, relatedLocations, images }) {
         {/* Related locations */}
         {relatedLocations && relatedLocations.length > 0 && (
           <div className={styles.relatedLocations}>
-            <h3>Other {categoryName}</h3>
+            <h3>{categoryName} Lainnya</h3>
             <div className={styles.relatedLocationsGrid}>
               {relatedLocations.map(related => (
                 <Link
@@ -179,7 +185,7 @@ export async function getStaticProps({ params }) {
   // Find related locations (same category but not the current location)
   const relatedLocations = locations
     .filter(loc => loc.category === location.category && loc.id !== location.id)
-    .slice(0, 3);
+    .slice(0, 4);
   
   // Get the images for this location
   const images = location.images || [defaultLocationImage];

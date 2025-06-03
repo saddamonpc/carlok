@@ -1,21 +1,10 @@
-import Head from 'next/head';
-import Layout, { siteTitle } from '../components/layout';
-import utilStyles from '../styles/utils.module.css';
-import Link from 'next/link';
+import Layout from '../components/layout';
+import Map from '../components/Map';
 
-export default function Home({ allPostsData }) {
+export default function Home() {
   return (
     <Layout home>
-      <Head>
-        <title>{siteTitle}</title>
-      </Head>
-      <section className={utilStyles.headingMd}>
-        <div className={utilStyles.mapLink}>
-          <Link href="/maps" className={utilStyles.mapButton}>
-            View Fasilkom UI Campus Map
-          </Link>
-        </div>
-      </section>
+      <Map />
     </Layout>
   );
 }
