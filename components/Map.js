@@ -183,7 +183,7 @@ export default function Map() {
           {/* Floor Filter - only show if a building is selected */}
           {selectedBuilding && availableFloors.length > 0 && (
             <div className={styles.filterGroup}>
-              <label htmlFor="floor-select" className={styles.filterLabel}>Filter berdasrkan Lantai:</label>
+              <label htmlFor="floor-select" className={styles.filterLabel}>Filter berdasarkan Lantai:</label>
               <select
                 id="floor-select"
                 value={selectedFloor || ''}
@@ -227,7 +227,7 @@ export default function Map() {
               if (selectedBuilding) {
                 const buildingName = buildings.find(b => b.id === selectedBuilding)?.name;
                 if (!searchQuery.trim()) {
-                  parts.push(`in ${buildingName}`);
+                  parts.push(`di ${buildingName}`);
                 } else {
                   parts.push(`(${buildingName})`);
                 }
