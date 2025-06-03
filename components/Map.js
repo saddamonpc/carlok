@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import Fuse from 'fuse.js';
 import styles from './Map.module.css';
+import SearchBar from './SearchBar';
 import { categories } from '../lib/data/categories';
 import { locations } from '../lib/data/locations.db';
 
@@ -94,9 +95,20 @@ export default function Map() {
 
     return filtered;
   })();
-
   // Sort categories alphabetically by name
   const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name));
+
+  // Handle search functionality
+  const handleSearch = () => {
+    // Gently scroll to results section
+    const resultsSection = document.querySelector(`.${styles.categoryHeader}`);
+    if (resultsSection) {
+      resultsSection.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+  };
 
   return (
     <>
@@ -104,57 +116,17 @@ export default function Map() {
         <title>Fasilkom UI Campus Map</title>
         <meta name="description" content="Interactive campus map" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
-        <div className={styles.mapContainer}>
+      </Head>        <div className={styles.mapContainer}>
         <h1 className={styles.title}>Peta Kampus Fasilkom UI</h1>
         <p className={styles.subtitle}>Cari lokasi / ruangan berdasarkan kategori</p>
-        {/* Search Bar */}
-        <div className={styles.searchContainer}>
-          <form 
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (searchQuery.trim()) {
-                // Gently scroll to results section
-                const resultsSection = document.querySelector(`.${styles.categoryHeader}`);
-                if (resultsSection) {
-                  resultsSection.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start' 
-                  });
-                }
-              }
-            }}
-            className={styles.searchForm}
-          >
-            <div className={styles.searchInputWrapper}>
-              <input
-                type="text"
-                placeholder="Search locations..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={styles.searchInput}
-              />
-              <button
-                type="submit"
-                className={styles.searchSubmitButton}
-                disabled={!searchQuery.trim()}
-                aria-label="Search"
-              >
-                🔍
-              </button>
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className={styles.clearSearchButton}
-                  aria-label="Clear search"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          </form>
-        </div><div className={styles.categoriesContainer}>
+        
+        {/* Main Search Bar */}
+        <SearchBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onSubmit={handleSearch}
+          placeholder="Search locations..."
+        />        <div className={styles.categoriesContainer}>
           {sortedCategories.map((category) => (
             <Link
               key={category.id}
@@ -162,7 +134,12 @@ export default function Map() {
               className={`${styles.categoryButton} ${selectedCategory === category.id ? styles.categoryButtonActive : ''}`}
               onClick={(e) => {
                 e.preventDefault();
-                setSelectedCategory(category.id);
+                // Toggle category selection - if already selected, deselect it
+                if (selectedCategory === category.id) {
+                  setSelectedCategory(null);
+                } else {
+                  setSelectedCategory(category.id);
+                }
                 // Reset building and floor when category changes
                 setSelectedBuilding(null);
                 setSelectedFloor(null);
@@ -172,41 +149,47 @@ export default function Map() {
               <span>{category.name}</span>
             </Link>
           ))}
-        </div>
-
-        {/* Building and Floor Filters */}
-        <div className={styles.filtersContainer}>
-          {/* Building Filter */}
+        </div>        {/* Building and Floor Filters */}
+        <div className={styles.filtersContainer}>          {/* Building Filter */}
           <div className={styles.filterGroup}>
-            <label htmlFor="building-select" className={styles.filterLabel}>Filter by Building:</label>
-            <select
-              id="building-select"
-              value={selectedBuilding || ''}
-              onChange={(e) => {
-                setSelectedBuilding(e.target.value || null);
-                setSelectedFloor(null); // Reset floor when building changes
-              }}
-              className={styles.filterSelect}
-            >
-              <option value="">All Buildings</option>
-              {buildings.map((building) => (
-                <option key={building.id} value={building.id}>
-                  {building.name}
-                </option>
+            <label className={styles.filterLabel}>Filter berdasarkan Gedung:</label>
+            <div className={styles.buildingButtons}>
+              {[
+                { id: 'gedung-a', name: 'Gedung A', abbr: 'A' },
+                { id: 'gedung-b', name: 'Gedung B', abbr: 'B' },
+                { id: 'gedung-c', name: 'Gedung C', abbr: 'C' },
+                { id: 'gedung-baru', name: 'Gedung Baru', abbr: 'BARU' }
+              ].map((building) => (
+                <button
+                  key={building.id}
+                  onClick={() => {
+                    // Toggle building selection
+                    if (selectedBuilding === building.id) {
+                      setSelectedBuilding(null);
+                    } else {
+                      setSelectedBuilding(building.id);
+                    }
+                    setSelectedFloor(null); // Reset floor when building changes
+                  }}
+                  className={`${styles.buildingButton} ${selectedBuilding === building.id ? styles.buildingButtonActive : ''}`}
+                  title={building.name}
+                >
+                  {building.abbr}
+                </button>
               ))}
-            </select>
+            </div>
           </div>
 
           {/* Floor Filter - only show if a building is selected */}
           {selectedBuilding && availableFloors.length > 0 && (
             <div className={styles.filterGroup}>
-              <label htmlFor="floor-select" className={styles.filterLabel}>Filter by Floor:</label>
+              <label htmlFor="floor-select" className={styles.filterLabel}>Filter berdasrkan Lantai:</label>
               <select
                 id="floor-select"
                 value={selectedFloor || ''}
                 onChange={(e) => setSelectedFloor(e.target.value || null)}
                 className={styles.filterSelect}
-              >                <option value="">All Floors</option>
+              >                <option value="">Semua Lantai</option>
                 {availableFloors.map((floor) => (
                   <option key={floor} value={floor}>
                     {floor.split(' - ').pop()}
@@ -234,11 +217,11 @@ export default function Map() {
               const parts = [];
               
               if (searchQuery.trim()) {
-                parts.push(`Search results for "${searchQuery}"`);
+                parts.push(`Hasil search untuk "${searchQuery}"`);
               } else if (selectedCategory) {
                 parts.push(categories.find(c => c.id === selectedCategory)?.name);
               } else {
-                parts.push('All Locations');
+                parts.push('Semua lokasi');
               }
               
               if (selectedBuilding) {
