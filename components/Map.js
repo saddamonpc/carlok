@@ -26,7 +26,7 @@ export default function Map() {
     ];
     
     const roomPrefixes = [
-      'ruang', 'ruangan', 'r.', 'r'
+      'ruang', 'ruangan', 'r.', 'r', 'kantor'
     ];
     
     let cleanQuery = query.toLowerCase().trim();
@@ -156,13 +156,20 @@ export default function Map() {
         <h1 className={styles.title}>Peta Kampus Fasilkom UI</h1>
         <p className={styles.subtitle}>Cari lokasi / ruangan berdasarkan kategori, bangunan, dan lantai.</p>
         
-        {/* Main Search Bar */}
-        <SearchBar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          onSubmit={handleSearch}
-          placeholder="Cari lokasi..."
-        />        <div className={styles.categoriesContainer}>
+        {/* Search Bar Section with Floating Results Counter */}
+        <div className={styles.searchBarSection}>
+          <SearchBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSubmit={handleSearch}
+            placeholder="Cari lokasi..."
+          />
+          {searchQuery.trim() && (
+            <div className={styles.searchResultsCountFloating}>
+              {filteredLocations.length} lokasi ditemukan
+            </div>
+          )}
+        </div><div className={styles.categoriesContainer}>
           {sortedCategories.map((category) => (
             <Link
               key={category.id}
