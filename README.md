@@ -1,116 +1,74 @@
-# CARLOK - Cari Lokasi Fasilkom UI
+# Cari Lokasi (CARLOK) Fasilkom UI
 
-**CARLOK** (Cari Lokasi) adalah aplikasi peta kampus interaktif untuk Fakultas Ilmu Komputer Universitas Indonesia. Aplikasi ini memungkinkan mahasiswa, dosen, dan pengunjung untuk dengan mudah menemukan lokasi ruangan, fasilitas, dan area di kampus Fasilkom UI.
+Cari Lokasi (**CARLOK**) adalah aplikasi berbasis web peta kampus untuk menavigasi Fakultas Ilmu Komputer Universitas Indonesia (Fasilkom UI). Aplikasi ini memungkinkan pengguna menemukan lokasi ruangan, fasilitas, dan area di kampus Fasilkom UI.
 
-## 🚀 Fitur Utama
+Silahkan di akses aplikasinya via [carlok.vercel.app](https://carlok.vercel.app/), atau lihat dokumentasi di [`/docs/README.md`](./docs/README.md)
 
-- 🔍 **Pencarian Cerdas** - Fuzzy search untuk menemukan ruangan dengan cepat
-- 🏢 **Filter Gedung** - Browse berdasarkan Gedung A, B, C, atau Gedung Baru
-- 🏷️ **Kategori Lokasi** - Filter berdasarkan lab, kelas, kantor, fasilitas, dll.
-- 📍 **Detail Lokasi** - Informasi lengkap dengan foto dan deskripsi
-- 🗺️ **Denah Interaktif** - Zoom dan navigasi pada denah lantai
-- 📱 **Responsive Design** - Optimal di desktop, tablet, dan mobile
+![CARLOK](/public/images/CARLOK_preview1.png)
+![CARLOK](/public/images/CARLOK_preview2.png)
 
-## 🛠️ Tech Stack
+## Abstrak / Abstract
+<details>
+<summary>Tekan disini untuk melihat Abstrak</summary>
+Fakultas Ilmu Komputer (Fasilkom), Universitas Indonesia adalah salah satu fakultas terkemuka yang berfokus pada bidang ilmu komputer dan sistem informasi di Indonesia. Namun, arsitektur Fasilkom memiliki empat gedung dan tata ruang yang rumit, sehingga susah dinavigasi oleh pengunjung maupun mahasiswa baru. Tidak terdapat aplikasi untuk menavigasi Fasilkom dengan baik. Oleh karena itu, penelitian ini bertujuan untuk mengembangkan aplikasi berbasis web Cari Lokasi (CARLOK) yang mendukung pengunjung dan mahasiswa Fasilkom untuk menavigasi Gedung Lama dan Baru Fasilkom. Penelitian ini berfokus dalam pengembangan CARLOK melalui proses User-Centered Design (UCD) dan Software Development Life Cycle (SDLC) model rapid throwaway prototyping. Di awal proses, pencarian data dilakukan dengan kuesioner dan survey lapangan untuk memahami kebutuhan user, lalu pembangunan prototype CARLOK didesain berdasasrkan analisa data yang dikumpulkan dan dievaluasikan oleh pengguna dari berbagai demografi. Setelah itu, aplikasi CARLOK dikembangkan dari prototype dengan React dan Next.js, dan delapan fitur dibuat untuk navigasi. Berdasarkan hasil evaluasi dengan wawancara pengguna, CARLOK merupakan aplikasi yang baik untuk membantu pengguna navigasi Fasilkom dan telah mencapai rata-rata skor System Usability Scale (SUS) sebesar 81.0 dari 17 responden, yang berarti skor usability pengguna termasuk dalam kategori ‘Excellent’.
+</details>
 
-- **Framework**: Next.js 13+
-- **Styling**: CSS Modules
+<details>
+<summary>Click here to see the Abstract</summary>
+The Faculty of Computer Science (Fasilkom), Universitas Indonesia, is one of the most prominent faculties for computer science and information systems in Indonesia. However, Fasilkom’s architecture is difficult to navigate for visitors and new students, due to having four buildings and a complicated layout. There has been no decent navigation application to get directions to certain locations and rooms in Fasilkom, so this research aims to develop Cari Lokasi (CARLOK), a web-based application designed to help visitors and students of Fasilkom navigate the Fasilkom Old and New Buildings. This research focuses on the development of CARLOK through User-Centered Design (UCD) process and the Software Development Life Cycle (SDLC) model, rapid throwaway prototyping model. Early in the process, data collection was carried out with questionnaires and field surveys to understand user requirements, and later a prototype of CARLOK was designed based on the analysed data and evaluated by users of various demographics. Later, the CARLOK application was developed from the prototype with React and Next.js framework, and eight features were created for navigation. Overall, based on evaluation from user interviews, CARLOK is a viable application to help users navigate Fasilkom and has reached an average System Usability Scale (SUS) score of 81.0 from 17 respondents, which is an ‘Excellent’ score for user usability.
+</details>
+
+
+## Tech Stack
+- **JavaScript Library**: React
+- **Framework**: Next.js
 - **Search**: Fuse.js (fuzzy search)
-- **Image Optimization**: Next.js Image component
-- **Pan/Zoom**: react-zoom-pan-pinch
-- **Deployment**: Vercel (recommended)
+- **Deployment**: GitHub + Vercel
 
-## 📁 Struktur Project
-
+## Struktur Project
 ```
 carlok/
-├── components/          # React components
-│   ├── Floor.js        # Komponen denah lantai
-│   ├── layout.js       # Layout wrapper
-│   ├── Map.js          # Komponen peta utama
-│   └── SearchBar.js    # Komponen pencarian
-├── pages/              # Next.js pages (routing)
-│   ├── categories/     # Halaman kategori
-│   ├── locations/      # Detail lokasi
-│   ├── maps/          # Denah gedung
-│   └── index.js       # Homepage
-├── lib/data/          # Data dan utilities
-│   ├── categories.js  # Data kategori
-│   └── locations.db.js # Data lokasi
-├── public/            # Static assets
-│   ├── denah2/       # Floor plans
-│   ├── locations/    # Location photos
-│   └── images/       # General images
-├── docs/             # Dokumentasi
-└── styles/          # CSS files
+├── components/             # React components
+│   ├── Floor.js            # Komponen denah lantai
+│   ├── layout.js           # Layout wrapper
+│   ├── Map.js              # Komponen peta utama
+│   └── SearchBar.js        # Komponen search
+├── pages/                  # Next.js pages (routing)
+│   ├── categories/         # Halaman kategori
+│   ├── locations/          # Detail lokasi
+│   ├── maps/               # Denah
+│   └── index.js            # Homepage
+├── lib/data/               # Database
+│   ├── categories.js       # Data kategori
+│   └── locations.db.js     # Static Database lokasi
+├── public/                 # Static assets
+│   ├── denah2/             # Floor plans
+│   ├── locations/          # Location photos
+│   └── images/             # General images
+├── docs/                   # Dokumentasi
+└── styles/                 # General CSS files
 ```
 
-## 🚀 Quick Start
-
-1. **Clone repository**
+## Self-hosting Installation
    ```bash
-   git clone [repository-url]
+   git clone https://github.com/saddamonpc/carlok.git
    cd carlok
-   ```
-
-2. **Install dependencies**
-   ```bash
    npm install
-   ```
-
-3. **Jalankan development server**
-   ```bash
    npm run dev
    ```
 
-4. **Buka browser** dan akses [http://localhost:3000](http://localhost:3000)
-
-## 📋 Available Scripts
-
-- `npm run dev` - Menjalankan development server
-- `npm run build` - Build aplikasi untuk production
-- `npm run start` - Menjalankan production server
-- `npm run lint` - Code linting dengan ESLint
-
-## 📖 Dokumentasi
-
+## Dokumentasi
 Dokumentasi lengkap tersedia di direktori [`/docs`](./docs/):
 
-- [📋 Overview](./docs/README.md) - Dokumentasi utama
-- [🧩 Components](./docs/components.md) - Dokumentasi komponen
-- [📊 Data Structure](./docs/data-structure.md) - Struktur data dan model
-- [⚙️ Installation](./docs/installation.md) - Panduan instalasi detail
+- [`README.md`](./docs/README.md) - Dokumentasi utama
+- [`architecture.md`](./architecture.md) - Overview arsitektur sistem
+- [`components.md`](./components.md) - Dokumentasi komponen
+- [`routing.md`](./routing.md) - Dokumentasi routing
 
-## 🏗️ Menambah Data
+## Contact
+Silakan hubungi saya:
+- Mohammad Saddam Mashuri
+- **Email**: saddamonpc@gmail.com
 
-### Menambah Lokasi Baru
-1. Edit `lib/data/locations.db.js`
-2. Tambahkan object lokasi dengan struktur yang sesuai
-3. Upload foto ke `public/locations/[gedung]/[lantai]/`
-
-### Menambah Kategori
-1. Edit `lib/data/categories.js`
-2. Tambahkan kategori dengan id, name, description, dan icon
-
-## 🤝 Contributing
-
-1. Fork repository ini
-2. Buat branch untuk fitur baru (`git checkout -b feature/amazing-feature`)
-3. Commit perubahan (`git commit -m 'Add amazing feature'`)
-4. Push ke branch (`git push origin feature/amazing-feature`)
-5. Buat Pull Request
-
-## 📄 License
-
+## License
 Project ini menggunakan [MIT License](LICENSE).
-
-## 📞 Contact
-
-Untuk pertanyaan atau saran, silakan hubungi:
-- **Developer**: [Your Name]
-- **Email**: [your.email@example.com]
-- **Faculty**: Fakultas Ilmu Komputer UI
-
----
-
-**CARLOK** - Memudahkan navigasi di Fasilkom UI! 🎯

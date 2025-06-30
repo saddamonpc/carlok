@@ -2,56 +2,54 @@
 
 Dokumentasi lengkap tentang arsitektur dan desain sistem aplikasi CARLOK.
 
-## Overview Arsitektur
+<- Kembali ke [Dokumentasi Utama](./README.md)
 
-CARLOK dibangun menggunakan arsitektur **JAMstack** (JavaScript, APIs, Markup) dengan Next.js sebagai framework utama. Aplikasi ini menggunakan pendekatan **Static Site Generation (SSG)** untuk performa optimal.
+## Tech Stack
+- **JavaScript Library**: React
+- **Framework**: Next.js
+- **Search**: Fuse.js (fuzzy search)
+- **Deployment**: GitHub + Vercel
 
-## Arsitektur High-Level
-
+## Struktur Project
 ```
-┌─────────────────────────────────────┐
-│           Frontend (Next.js)        │
-├─────────────────────────────────────┤
-│  ┌─────────────┐ ┌─────────────────┐ │
-│  │   Pages     │ │   Components    │ │
-│  │             │ │                 │ │
-│  │ • index.js  │ │ • Map.js        │ │
-│  │ • [id].js   │ │ • Floor.js      │ │
-│  │ • ...       │ │ • SearchBar.js  │ │
-│  └─────────────┘ └─────────────────┘ │
-├─────────────────────────────────────┤
-│           Data Layer                │
-│  ┌─────────────┐ ┌─────────────────┐ │
-│  │ Static JSON │ │ Image Assets    │ │
-│  │             │ │                 │ │
-│  │ • locations │ │ • Floor plans   │ │
-│  │ • categories│ │ • Photos        │ │
-│  └─────────────┘ └─────────────────┘ │
-├─────────────────────────────────────┤
-│         Build & Deploy              │
-│         (Vercel/Netlify)            │
-└─────────────────────────────────────┘
+carlok/
+├── components/             # React components
+│   ├── Floor.js            # Komponen denah lantai
+│   ├── layout.js           # Layout wrapper
+│   ├── Map.js              # Komponen peta utama
+│   └── SearchBar.js        # Komponen search
+├── pages/                  # Next.js pages (routing)
+│   ├── categories/         # Halaman kategori
+│   ├── locations/          # Detail lokasi
+│   ├── maps/               # Denah
+│   └── index.js            # Homepage
+├── lib/data/               # Database
+│   ├── categories.js       # Data kategori
+│   └── locations.db.js     # Static Database lokasi
+├── public/                 # Static assets
+│   ├── denah2/             # Floor plans
+│   ├── locations/          # Location photos
+│   └── images/             # General images
+├── docs/                   # Dokumentasi
+└── styles/                 # General CSS files
 ```
 
-## Struktur Aplikasi
+## 1. Komponen User Interface
 
-### 1. Presentation Layer (UI Components)
-
-#### **Components**
+### **Components**
 - **Map.js**: Komponen utama untuk peta interaktif
 - **Floor.js**: Komponen untuk menampilkan denah lantai
-- **SearchBar.js**: Komponen pencarian dengan fuzzy search
+- **SearchBar.js**: Komponen search dengan fuzzy search Fuse.js
 - **Layout.js**: Wrapper layout untuk konsistensi UI
 
-#### **Pages (Route Handlers)**
-- **index.js**: Homepage dengan peta kampus
-- **categories/[categoryId].js**: Halaman kategori lokasi
-- **locations/[locationId].js**: Detail lokasi individual
-- **maps/[buildingId].js**: Denah gedung per lantai
+### **Pages (Routing)**
+- **index.js**: Homepage
+- **categories/[categoryId].js**: Kategori
+- **locations/[locationId].js**: Location / room description page
+- **maps/[buildingId].js**: Building description page
 
-### 2. Business Logic Layer
-
-#### **Search Engine**
+## 2. Business Logic Layer
+### **Search Engine**
 ```javascript
 // Fuzzy search dengan Fuse.js
 const fuseOptions = {
@@ -61,255 +59,125 @@ const fuseOptions = {
 };
 ```
 
-#### **Filtering System**
+### **Filtering System**
 - Filter berdasarkan kategori
 - Filter berdasarkan gedung
 - Filter berdasarkan lantai
 - Kombinasi multiple filters
 
-#### **Navigation Logic**
+### **Navigation Logic**
 - Dynamic routing dengan Next.js
 - State management untuk filter
 - URL parameter handling
 
-### 3. Data Layer
+## 3. Data Layer
 
-#### **Data Sources**
+### **Sumber data**
 ```
 lib/data/
-├── categories.js     # Master data kategori
-└── locations.db.js   # Master data lokasi
+├── categories.js     # Database kategori
+└── locations.db.js   # Database lokasi
 ```
 
-#### **Data Models**
+### Kategori yang Tersedia (categories.js)
+1. `buildings` - Gedung
+2. `lecture-halls` - Auditorium  
+3. `labs` - Laboratorium
+4. `study-spaces` - Tempat Belajar
+5. `facilities` - Fasilitas
+6. `administration` - Administrasi
+7. `offices` - Ruang Dosen/Staff
+8. `classrooms` - Ruang Kuliah/Kelas
+9. `meeting-rooms` - Ruang Rapat/Meeting
+10. `religious` - Musholla
+11. `student-organizations` - Organisasi Mahasiswa
+12. `common-areas` - Area Umum
+13. `toilet` - Toilet
+14. `dining` - Kantin/Cafeteria
+15. `security` - Sekuriti/Pos Satpam
+16. `elevator` - Elevator
+
+### Menambah Lokasi Baru
+1. Edit `lib/data/locations.db.js`
+2. Tambahkan lokasi dengan struktur yang sesuai (lihat bawah)
+3. Upload foto ke `public/locations/[gedung]/[lantai]/`
+
+### Menambah Kategori
+1. Edit `lib/data/categories.js`
+2. Tambahkan kategori dengan id, name, description, dan icon
+
+### **Model data**
 
 **Category Model:**
 ```javascript
 {
   id: string,           // Unique identifier
-  name: string,         // Display name
+  name: string,         // Name display
   description: string,  // Category description
-  icon: string         // Emoji icon
+  icon: string          // Emoji icon display
 }
 ```
 
-**Location Model:**
+**Building Model:**
 ```javascript
 {
   id: string,           // Unique identifier
-  name: string,         // Location name
+  name: string,         // Building name
   category: string,     // Category reference
-  description: string,  // Detailed description
-  building: string,     // Building reference
-  floor: string,        // Floor information
-  images: string[]      // Image paths
+  description: string,  // Building description
+  floors: string[],     // List of building floors (format: "Gedung X - Lantai Y")
+  images: string[]      // Building images path
 }
 ```
 
-### 4. Asset Management
-
-#### **Static Assets Structure**
-```
-public/
-├── denah2/           # Floor plan images
-│   ├── Gedung A/
-│   ├── Gedung B/
-│   ├── Gedung C/
-│   └── Gedung Baru/
-├── locations/        # Location photos
-│   ├── Gedung Lama/
-│   └── Gedung Baru/
-└── images/          # General assets
-```
-
-## Design Patterns
-
-### 1. **Component Composition Pattern**
+**Location / room Model:**
 ```javascript
-// Layout composition
-<Layout>
-  <Map>
-    <SearchBar />
-    <CategoryFilter />
-    <LocationList />
-  </Map>
-</Layout>
+{
+  id: string,                   // Unique identifier
+  name: string,                 // Location / room name
+  category: string,             // Category reference
+  description: string,          // Location / room description
+  building: string,             // Building reference
+  floor: string OR string[],    // Floor location(s) (format: "Gedung X - Lantai Y")
+  images: string[]              // Location image(s) path
+}
 ```
-
-### 2. **Render Props Pattern**
+### **Contoh penggunaan**
+**Contoh Data Category**
 ```javascript
-// Floor component dengan render props
-<TransformWrapper>
-  {({ zoomIn, zoomOut, resetTransform }) => (
-    <FloorControls 
-      onZoomIn={zoomIn}
-      onZoomOut={zoomOut}
-      onReset={resetTransform}
-    />
-  )}
-</TransformWrapper>
-```
-
-### 3. **Custom Hook Pattern**
-```javascript
-// Custom hook untuk search logic
-const useLocationSearch = (locations, query) => {
-  return useMemo(() => {
-    if (!query) return locations;
-    return fuse.search(query).map(result => result.item);
-  }, [locations, query]);
-};
-```
-
-## State Management
-
-### **Local State (useState)**
-- Filter selections (category, building, floor)
-- Search query
-- UI state (selected image, floor index)
-
-### **Derived State (useMemo)**
-- Filtered locations
-- Available floors for selected building
-- Search results
-
-### **No Global State**
-Aplikasi ini tidak menggunakan Redux atau Context API karena:
-- State relatif sederhana
-- Tidak ada shared state complex
-- Performance optimal dengan local state
-
-## Performance Optimizations
-
-### 1. **Static Site Generation (SSG)**
-```javascript
-// Pre-generate semua halaman pada build time
-export async function getStaticPaths() {
-  const paths = locations.map(location => ({
-    params: { locationId: location.id }
-  }));
-  return { paths, fallback: false };
+{
+    id: 'labs',
+    name: 'Laboratorium',
+    description: 'Research and teaching labs',
+    icon: '🧪'
 }
 ```
 
-### 2. **Image Optimization**
+**Contoh Data Building**
 ```javascript
-// Next.js Image component untuk lazy loading
-<Image
-  src={imagePath}
-  alt={location.name}
-  width={800}
-  height={600}
-  priority={isMainImage}
-  loading={isMainImage ? "eager" : "lazy"}
-/>
+{
+    id: 'gedung-a',
+    name: 'Gedung A',
+    category: 'buildings',
+    description: 'Gedung A houses the Faculty of Computer Science with modern classrooms, laboratories, and office spaces.',
+    floors: ['Gedung A - Lantai 1', 'Gedung A - Lantai 2'],
+    images: [
+        '/locations/Gedung Lama/Gedung A/Lantai 1/Entrance1_1.jpg',
+        '/locations/Gedung Lama/Gedung A/Lantai 1/Entrance2.jpg',
+        '/locations/Gedung Lama/Gedung A/Lantai 1/Entrance3.jpg'
+    ]
+}
 ```
 
-### 3. **Code Splitting**
-- Automatic code splitting per page
-- Component-level splitting dengan dynamic imports
-
-### 4. **Search Optimization**
+**Contoh Data Location / room**
 ```javascript
-// Memoized search instance
-const fuse = useMemo(() => 
-  new Fuse(enhancedLocations, fuseOptions), 
-  [enhancedLocations]
-);
-```
-
-## Security Considerations
-
-### **Client-Side Security**
-- Input sanitization pada search queries
-- XSS prevention dengan proper escaping
-- Image path validation
-
-### **Build-Time Security**
-- Static generation mengeliminasi runtime vulnerabilities
-- No server-side code execution
-- CDN delivery untuk asset security
-
-## Scalability Considerations
-
-### **Data Scaling**
-- JSON-based data mudah di-maintain
-- Dapat dipindah ke CMS atau database jika perlu
-- Incremental build support
-
-### **Performance Scaling**
-- CDN untuk global distribution
-- Image optimization automatic
-- Static caching strategies
-
-### **Feature Scaling**
-- Modular component architecture
-- Easy plugin system untuk fitur baru
-- API-ready architecture
-
-## Technology Stack Detail
-
-### **Core Framework**
-- **Next.js 13+**: React framework dengan SSG
-- **React 18**: UI library dengan concurrent features
-
-### **Styling**
-- **CSS Modules**: Scoped styling
-- **Responsive Design**: Mobile-first approach
-
-### **Search & Interaction**
-- **Fuse.js**: Fuzzy search library
-- **react-zoom-pan-pinch**: Pan/zoom functionality
-
-### **Build & Deploy**
-- **Vercel**: Recommended deployment platform
-- **Webpack**: Module bundler (built-in Next.js)
-
-## Development Workflow
-
-### **Development Process**
-1. **Local Development**: `npm run dev`
-2. **Build Testing**: `npm run build`
-3. **Static Export**: `npm run export` (jika diperlukan)
-4. **Deployment**: Git push → Auto deploy
-
-### **File Structure Convention**
-```
-├── components/       # Reusable UI components
-├── pages/           # Route definitions
-├── lib/             # Utility functions & data
-├── public/          # Static assets
-├── styles/          # Global styles
-└── docs/           # Documentation
-```
-
-## Monitoring & Analytics
-
-### **Performance Monitoring**
-- Next.js built-in analytics
-- Web Vitals tracking
-- Bundle analysis
-
-### **User Analytics**
-- Page view tracking
-- Search query analytics
-- User journey mapping
-
-## Future Architecture Considerations
-
-### **Potential Migrations**
-1. **Database Integration**: PostgreSQL + Prisma
-2. **CMS Integration**: Strapi atau Contentful
-3. **Real-time Features**: Socket.io untuk live updates
-4. **Mobile App**: React Native dengan shared components
-
-### **API Layer**
-Struktur siap untuk API integration:
-```javascript
-// Future API structure
-/api/
-├── locations/
-├── categories/
-├── search/
-└── analytics/
+{
+  id: 'gedung-baru-a101-lab-komputer',
+  name: 'A101 - Lab Komputer',
+  category: 'labs',
+  description: 'Computer laboratory A101 for programming and software development courses.',
+  building: 'gedung-baru',
+  floor: 'Gedung Baru - Lantai 1',
+  images: ['/locations/Gedung Baru/Lantai 1/A101 - Lab Komputer.jpg']
+}
 ```

@@ -2,6 +2,8 @@
 
 Dokumentasi untuk semua komponen React dalam aplikasi CARLOK.
 
+<- Kembali ke [Dokumentasi Utama](./README.md)
+
 ## Daftar Komponen
 
 - [Layout](#layout)
@@ -91,8 +93,3 @@ Komponen input pencarian dengan handling submit.
 - `onSubmit` - Callback untuk submit form
 - `placeholder` - Text placeholder
 - `className` - CSS class tambahan
-
-### Fitur
-- Auto-focus pada mount
-- Enter key untuk submit
-- Smooth scroll ke hasil pencarian
