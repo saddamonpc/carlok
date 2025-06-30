@@ -4,8 +4,12 @@ Cari Lokasi (**CARLOK**) adalah aplikasi berbasis web peta kampus untuk menaviga
 
 Silahkan di akses aplikasinya via [carlok.vercel.app](https://carlok.vercel.app/), atau lihat dokumentasi di [`/docs/README.md`](./docs/README.md)
 
+<div align="center">
+
 ![CARLOK](/public/images/CARLOK_preview1.png)
 ![CARLOK](/public/images/CARLOK_preview2.png)
+
+</div>
 
 ## Abstrak / Abstract
 <details>
