@@ -37,40 +37,18 @@ carlok/
 ## 1. Komponen User Interface
 
 ### **Components**
-- **Map.js**: Komponen utama untuk peta interaktif
-- **Floor.js**: Komponen untuk menampilkan denah lantai
-- **SearchBar.js**: Komponen search dengan fuzzy search Fuse.js
-- **Layout.js**: Wrapper layout untuk konsistensi UI
+- **Floor.js**: Komponen penampilan denah lantai.
+- **Layout.js**: Wrapper layout.
+- **Map.js**: Komponen fitur-fitur navigasi Search, Category, dan Filter.
+- **SearchBar.js**: Komponen UI search bar.
 
 ### **Pages (Routing)**
 - **index.js**: Homepage
-- **categories/[categoryId].js**: Kategori
+- **categories/[categoryId].js**: Category
 - **locations/[locationId].js**: Location / room description page
 - **maps/[buildingId].js**: Building description page
 
-## 2. Business Logic Layer
-### **Search Engine**
-```javascript
-// Fuzzy search dengan Fuse.js
-const fuseOptions = {
-  keys: ['name', 'id', 'description'],
-  threshold: 0.2,
-  includeScore: true
-};
-```
-
-### **Filtering System**
-- Filter berdasarkan kategori
-- Filter berdasarkan gedung
-- Filter berdasarkan lantai
-- Kombinasi multiple filters
-
-### **Navigation Logic**
-- Dynamic routing dengan Next.js
-- State management untuk filter
-- URL parameter handling
-
-## 3. Data Layer
+## 2. Data Layer
 
 ### **Sumber data**
 ```
@@ -97,12 +75,12 @@ lib/data/
 15. `security` - Sekuriti/Pos Satpam
 16. `elevator` - Elevator
 
-### Menambah Lokasi Baru
+### Menambah Location
 1. Edit `lib/data/locations.db.js`
 2. Tambahkan lokasi dengan struktur yang sesuai (lihat bawah)
 3. Upload foto ke `public/locations/[gedung]/[lantai]/`
 
-### Menambah Kategori
+### Menambah Category
 1. Edit `lib/data/categories.js`
 2. Tambahkan kategori dengan id, name, description, dan icon
 

@@ -9,7 +9,7 @@ Dokumentasi tentang routing dalam aplikasi CARLOK menggunakan Next.js.
 ### Halaman Utama
 - **Route**: `/`
 - **File**: `pages/index.js`
-- **Deskripsi**: Halaman utama aplikasi yang menampilkan semua lokasi Fasilkom dan juga fitur-fitur navigasi Search, Category, Filter by Building, dan Filter by Floor.
+- **Deskripsi**: Halaman utama aplikasi yang menampilkan semua lokasi Fasilkom dan juga fitur-fitur navigasi Search, Category, Filter by Building, dan Filter by Floor
 
 ### Kategori
 - **Route**: `/categories/[categoryId]`
@@ -28,6 +28,6 @@ Dokumentasi tentang routing dalam aplikasi CARLOK menggunakan Next.js.
 ### Halaman Denah Gedung
 - **Route**: `/maps/[buildingId]`
 - **File**: `pages/maps/[buildingId].js`
-- **Parameter**: `buildingId` - ID gedung (gedung-a, gedung-b, gedung-c, gedung-baru)
+- **Parameter**: `buildingId` - Unique ID gedung (gedung-a, gedung-b, gedung-c, gedung-baru)
 - **Deskripsi**: Menampilkan deskripsi bangunan dengan foto dan denah
 - **Contoh URL**: `/maps/gedung-baru`
