@@ -75,4 +75,4 @@ Silakan hubungi saya:
 - **Email**: saddamonpc@gmail.com
 
 ## License
-Project ini menggunakan [MIT License](LICENSE).
+Pending.
