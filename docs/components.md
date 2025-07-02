@@ -2,7 +2,7 @@
 
 Dokumentasi untuk semua komponen React dalam aplikasi CARLOK.
 
-<- Kembali ke [Dokumentasi Utama](./README.md)
+<- Kembali ke [Dokumentasi hub](./README.md)
 
 ## Daftar Komponen
 
@@ -67,8 +67,6 @@ Komponen menampilkan fitur-fitur navigasi dengan fitur search, category, dan fil
 
 ### Search: Fuzzy Search Implementation
 Komponen Map menggunakan Fuse.js untuk implementasi fuzzy search. Fuse.js merupakan lightweight JavaScript Library untuk fuzzy search yang memungkinkan pencarian approximate string matching. Library ini dapat menangani typo, variasi ejaan, dan pencarian yang tidak exact match dengan scoring (Fuzziness Score) yang di kalkulasi dengan implementasi [Bitap](https://en.wikipedia.org/wiki/Bitap_algorithm) algoritma yang termodifikasi oleh Fuse.js. Fuse.js dipilih karena merupakan lightweight JavaScript Library dan cocok untuk static database yang relatif kecil seperti CARLOK.
-
-
 
 #### Konfigurasi Fuse.js
 - `threshold`: 0.2 (0.0 = exact match, 1.0 = match anything)

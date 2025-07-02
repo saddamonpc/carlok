@@ -2,7 +2,7 @@
 
 Dokumentasi lengkap tentang arsitektur dan desain sistem aplikasi CARLOK.
 
-<- Kembali ke [Dokumentasi Utama](./README.md)
+<- Kembali ke [Dokumentasi hub](./README.md)
 
 ## Tech Stack
 - **JavaScript Library**: React
@@ -111,13 +111,13 @@ lib/data/
 **Location / room Model:**
 ```javascript
 {
-  id: string,                   // Unique identifier
-  name: string,                 // Location / room name
-  category: string,             // Category reference
-  description: string,          // Location / room description
-  building: string,             // Building reference
-  floor: string OR string[],    // Floor location(s) (format: "Gedung X - Lantai Y")
-  images: string[]              // Location image(s) path
+  id: string,           // Unique identifier
+  name: string,         // Location / room name
+  category: string,     // Category reference
+  description: string,  // Location / room description
+  building: string,     // Building reference
+  floor: string,        // Floor location(s) (format: "Gedung X - Lantai Y")
+  images: string[]      // Location image(s) path
 }
 ```
 ### **Contoh penggunaan**
@@ -138,7 +138,10 @@ lib/data/
     name: 'Gedung A',
     category: 'buildings',
     description: 'Gedung A houses the Faculty of Computer Science with modern classrooms, laboratories, and office spaces.',
-    floors: ['Gedung A - Lantai 1', 'Gedung A - Lantai 2'],
+    floors: [
+      'Gedung A - Lantai 1', 
+      'Gedung A - Lantai 2'
+    ],
     images: [
         '/locations/Gedung Lama/Gedung A/Lantai 1/Entrance1_1.jpg',
         '/locations/Gedung Lama/Gedung A/Lantai 1/Entrance2.jpg',

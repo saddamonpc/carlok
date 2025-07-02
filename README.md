@@ -2,7 +2,7 @@
 
 Cari Lokasi (**CARLOK**) adalah aplikasi berbasis web peta kampus untuk menavigasi Fakultas Ilmu Komputer Universitas Indonesia (Fasilkom UI). Aplikasi ini memungkinkan pengguna menemukan lokasi ruangan, fasilitas, dan area di kampus Fasilkom UI.
 
-Silahkan di akses aplikasinya via [carlok.vercel.app](https://carlok.vercel.app/), atau lihat dokumentasi di [`/docs/README.md`](./docs/README.md)
+Silahkan di akses aplikasinya di [carlok.vercel.app](https://carlok.vercel.app/), atau lihat dokumentasi di [`/docs/README.md`](./docs/README.md)
 
 <div align="center">
 
@@ -62,10 +62,10 @@ carlok/
    ```
 
 ## Dokumentasi
-Dokumentasi lengkap tersedia di direktori [`/docs`](./docs/):
+Dokumentasi tersedia di direktori [`/docs`](./docs/):
 
-- [`README.md`](./docs/README.md) - Dokumentasi utama
-- [`architecture.md`](./architecture.md) - Overview arsitektur sistem
+- [`README.md`](./docs/README.md) - Dokumentasi hub
+- [`architecture.md`](./architecture.md) - Dokummentasi arsitektur
 - [`components.md`](./components.md) - Dokumentasi komponen
 - [`routing.md`](./routing.md) - Dokumentasi routing
 
