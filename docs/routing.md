@@ -2,7 +2,7 @@
 
 Dokumentasi tentang routing dalam aplikasi CARLOK menggunakan Next.js.
 
-<- Kembali ke [Dokumentasi Utama](./README.md)
+<- Kembali ke [Dokumentasi hub](./README.md)
 
 ## Struktur Routing
 
