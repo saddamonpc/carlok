@@ -1,4 +1,4 @@
-# Panduan Routing
+# Dokumentasi Routing
 
 Dokumentasi tentang routing dalam aplikasi CARLOK menggunakan Next.js.
 
@@ -25,7 +25,7 @@ Dokumentasi tentang routing dalam aplikasi CARLOK menggunakan Next.js.
 - **Deskripsi**: Menampilkan deskripsi lokasi atau ruangan dengan foto dan denah
 - **Contoh URL**: `/locations/gedung-baru-a101-lab-komputer`
 
-### Halaman Denah Gedung
+### Halaman Deskripsi Gedung
 - **Route**: `/maps/[buildingId]`
 - **File**: `pages/maps/[buildingId].js`
 - **Parameter**: `buildingId` - Unique ID gedung (gedung-a, gedung-b, gedung-c, gedung-baru)
