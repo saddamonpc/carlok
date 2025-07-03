@@ -7,6 +7,8 @@ import fs from 'fs';
 import path from 'path';
 import styles from '../../components/Map.module.css';
 
+// Not suited for display: This just shows the locations in a building
+// leftover from making the prototype
 export default function BuildingPage({ buildingName, floors }) {
   const router = useRouter();
   const { buildingId } = router.query;

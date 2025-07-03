@@ -6,6 +6,8 @@ import styles from '../../components/Map.module.css';
 import { locations } from '../../lib/data/locations.db';
 import { categories } from '../../lib/data/categories';
 
+// Not suited for display: This just shows the locations in a category
+// Could be used for a category page like "Buildings", "Labs", etc.
 export default function CategoryPage({ category, categoryLocations }) {
   const router = useRouter();
   

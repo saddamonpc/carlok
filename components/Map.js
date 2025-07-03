@@ -11,10 +11,14 @@ export default function Map() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [selectedFloor, setSelectedFloor] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');  // Function to normalize room names for better search matching
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Function to normalize room names for better search matching
   const normalizeRoomName = (text) => {
     return text.toLowerCase().trim();
-  };  // Function to clean search query by removing honorifics and room prefixes
+  };
+  
+  // Function to clean search query by removing honorifics and room prefixes
   const cleanSearchQuery = (query) => {
     const honorifics = [
       'pak', 'bpk', 'bu', 'bapak', 'ibu',
@@ -31,19 +35,19 @@ export default function Map() {
     
     let cleanQuery = query.toLowerCase().trim();
     
-    // Remove honorifics from anywhere in the query (followed by space)
+    // Remove honorifics from anywhere in the query
     for (const honorific of honorifics) {
       const pattern = new RegExp(`\\b${honorific}\\s+`, 'gi');
       cleanQuery = cleanQuery.replace(pattern, '');
     }
     
-    // Remove room prefixes from anywhere in the query (followed by space)
+    // Remove room prefixes from anywhere in the query
     for (const prefix of roomPrefixes) {
       const pattern = new RegExp(`\\b${prefix}\\s+`, 'gi');
       cleanQuery = cleanQuery.replace(pattern, '');
     }
     
-    // Remove periods from room numbers (e.g., "A.1.01" becomes "A101")
+    // Remove periods from room numbers (example: "A.1.01" becomes "A101")
     cleanQuery = cleanQuery.replace(/([a-zA-Z])\.([0-9])/g, '$1$2');
     cleanQuery = cleanQuery.replace(/([0-9])\.([0-9])/g, '$1$2');
     
@@ -51,7 +55,9 @@ export default function Map() {
     cleanQuery = cleanQuery.replace(/\s+/g, ' ').trim();
     
     return cleanQuery;
-  };// Enhanced location data with normalized search fields
+  };
+  
+  // Enhanced location data with normalized search fields
   const enhancedLocations = useMemo(() => {
     return locations.map(location => ({
       ...location,
@@ -59,22 +65,28 @@ export default function Map() {
       normalizedId: normalizeRoomName(location.id),
       searchableText: `${location.name} ${location.id} ${location.description}`.toLowerCase()
     }));
-  }, []);  // Configure Fuse.js for fuzzy search with stricter matching
+  }, []);  
+  
+  // Fuse.js for fuzzy search
+  // See ../docs/architecture.md for more details on implementation and reasoning
+  // Can also check Fuse.js documentation: https://fusejs.io/
   const fuseOptions = {
     keys: [
       'name',
       'id',
       'description'
     ],
-    threshold: 0.2, // Lower threshold for more precise matching (0.0 = perfect match, 1.0 = match anything)
+    threshold: 0.2, // Based on experimentation, 0.2 should be just right
     includeScore: true,
     includeMatches: true,
     ignoreLocation: true,
     findAllMatches: true
   };
 
+  // Create Fuse instance with enhanced locations
   const fuse = useMemo(() => new Fuse(enhancedLocations, fuseOptions), [enhancedLocations]);
-    // Get unique buildings from locations that have a building property
+    
+  // Get unique buildings from locations that have a building property
   const buildings = [...new Set(locations
     .filter(location => location.building)
     .map(location => location.building))]
@@ -89,6 +101,7 @@ export default function Map() {
       // Sort other buildings alphabetically
       return a.name.localeCompare(b.name);
     });
+  
   // Get unique floors for the selected building
   const availableFloors = selectedBuilding 
     ? [...new Set(locations
@@ -103,7 +116,9 @@ export default function Map() {
           // Default alphabetical sort for other cases
           return a.localeCompare(b);
         })
-    : [];  // Filter locations based on selected filters and search query
+    : [];
+  
+  // Filter locations based on selected filters and search query
   const filteredLocations = (() => {
     let filtered = locations;    // Apply search filter first if there's a search query
     if (searchQuery.trim()) {
@@ -117,7 +132,7 @@ export default function Map() {
     if (selectedCategory) {
       filtered = filtered.filter(location => location.category === selectedCategory);
     }
-    // If no category is selected, show all locations (not just buildings)
+    // If no category is selected, show all locations
 
     // Filter by building
     if (selectedBuilding) {
@@ -131,6 +146,7 @@ export default function Map() {
 
     return filtered;
   })();
+
   // Sort categories alphabetically by name
   const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name));
 
@@ -152,7 +168,8 @@ export default function Map() {
         <title>Fasilkom UI Campus Map</title>
         <meta name="description" content="Interactive campus map" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>        <div className={styles.mapContainer}>
+      </Head>
+      <div className={styles.mapContainer}>
         <h1 className={styles.title}>Peta Kampus Fasilkom UI</h1>
         <p className={styles.subtitle}>Cari lokasi / ruangan berdasarkan kategori, bangunan, dan lantai.</p>
         
@@ -164,19 +181,25 @@ export default function Map() {
             onSubmit={handleSearch}
             placeholder="Cari lokasi..."
           />
+          {/* Show floating results counter */}
           {searchQuery.trim() && (
             <div className={styles.searchResultsCountFloating}>
               {filteredLocations.length} lokasi ditemukan
             </div>
           )}
-        </div><div className={styles.categoriesContainer}>
+        </div>
+
+        {/* Category feature */}
+        <div className={styles.categoriesContainer}>
           {sortedCategories.map((category) => (
             <Link
               key={category.id}
               href={`/categories/${category.id}`}
-              className={`${styles.categoryButton} ${selectedCategory === category.id ? styles.categoryButtonActive : ''}`}              onClick={(e) => {
+              className={`${styles.categoryButton} ${selectedCategory === category.id ? styles.categoryButtonActive : ''}`}
+              onClick={(e) => {
                 e.preventDefault();
-                // Toggle category selection - if already selected, deselect it
+                // Toggle category selection - if already selected, deselect it.
+                // Only allow one category to be selected at a time
                 if (selectedCategory === category.id) {
                   setSelectedCategory(null);
                 } else {
@@ -189,8 +212,11 @@ export default function Map() {
               <span>{category.name}</span>
             </Link>
           ))}
-        </div>        {/* Building and Floor Filters */}
-        <div className={styles.filtersContainer}>          {/* Building Filter */}
+        </div>
+
+        {/* Building and Floor Filters */}
+        <div className={styles.filtersContainer}>
+          {/* Building Filter */}
           <div className={styles.filterGroup}>
             <label className={styles.filterLabel}>Filter berdasarkan Gedung:</label>
             <div className={styles.buildingButtons}>
@@ -204,6 +230,8 @@ export default function Map() {
                   key={building.id}
                   onClick={() => {
                     // Toggle building selection
+                    // Same behavior as categories - if already selected, deselect it.
+                    // Only allow one building to be selected at a time
                     if (selectedBuilding === building.id) {
                       setSelectedBuilding(null);
                     } else {
@@ -219,8 +247,7 @@ export default function Map() {
               ))}
             </div>
           </div>
-
-          {/* Floor Filter - only show if a building is selected */}
+          {/* Floor Filter - only show up if a building is selected */}
           {selectedBuilding && availableFloors.length > 0 && (
             <div className={styles.filterGroup}>
               <label htmlFor="floor-select" className={styles.filterLabel}>Filter berdasarkan Lantai:</label>
@@ -229,7 +256,8 @@ export default function Map() {
                 value={selectedFloor || ''}
                 onChange={(e) => setSelectedFloor(e.target.value || null)}
                 className={styles.filterSelect}
-              >                <option value="">Semua Lantai</option>
+              >
+                <option value="">Semua Lantai</option>
                 {availableFloors.map((floor) => (
                   <option key={floor} value={floor}>
                     {floor.split(' - ').pop()}
@@ -237,7 +265,9 @@ export default function Map() {
                 ))}
               </select>
             </div>
-          )}          {/* Clear Filters Button */}
+          )}
+
+          {/* Clear Category and Filter Button */}
           {(selectedCategory || selectedBuilding || selectedFloor) && (
             <button
               onClick={() => {
@@ -251,10 +281,15 @@ export default function Map() {
             </button>
           )}
         </div>
-          <div className={styles.categoryHeader}>          <h2 className={styles.categoryTitle}>
+
+        {/* Display search, category, and filter results */}
+        {/* *located below navigation features */}
+        <div className={styles.categoryHeader}>
+          <h2 className={styles.categoryTitle}>
             {(() => {
               const parts = [];
               
+              // Show search display, if none, then just say 'show all.'
               if (searchQuery.trim()) {
                 parts.push(`Hasil search untuk "${searchQuery}"`);
               } else if (selectedCategory) {
@@ -263,6 +298,7 @@ export default function Map() {
                 parts.push('Semua lokasi');
               }
               
+              // If a filter by building button is selected, show it
               if (selectedBuilding) {
                 const buildingName = buildings.find(b => b.id === selectedBuilding)?.name;
                 if (!searchQuery.trim()) {
@@ -272,6 +308,7 @@ export default function Map() {
                 }
               }
               
+              // If a filter by floor button is selected, show it
               if (selectedFloor) {
                 // Extract just the floor name (everything after the last " - ")
                 const floorName = selectedFloor.split(' - ').pop();
@@ -284,17 +321,22 @@ export default function Map() {
               
               return parts.join(' ');
             })()}
-          </h2>          <div className={styles.resultsCount}>
+          </h2>
+
+          {/* Display results count */}
+          <div className={styles.resultsCount}>
             {filteredLocations.length} lokasi ditemukan
           </div>
-          {/* Uncomment this section if you want to show a "View All" link for the selected category */}
+          {/* Uncomment this for a "View All" link for the selected category */}
           {/* {selectedCategory && (
             <Link href={`/categories/${selectedCategory}`} className={styles.viewAllLink}>
               Lihat semua {categories.find(c => c.id === selectedCategory)?.name} →
             </Link>
           )} */}
         </div>
-          <div className={styles.locationsList}>
+
+        {/* Display locations list */}
+        <div className={styles.locationsList}>
           {filteredLocations.map((location) => (
             <Link 
               href={`/locations/${location.id}`}
@@ -303,16 +345,22 @@ export default function Map() {
             >
               <div className={styles.locationListContent}>
                 <div className={styles.locationListHeader}>
-                  <h3 className={styles.locationListTitle}>{location.name}</h3>                  {location.building && (
+                  <h3 className={styles.locationListTitle}>
+                    {location.name}
+                  </h3>
+                  {/* Display building and floor info*/}
+                  {location.building && (
                     <span className={styles.locationBuildingInfo}>
                       {locations.find(l => l.id === location.building)?.name}
                       {location.floor && ` - ${location.floor.split(' - ').pop()}`}
                     </span>
                   )}
                 </div>
+                {/* Brief description only until 150 characters */}
                 <p className={styles.locationListDescription}>
                   {location.description.substring(0, 150)}...
                 </p>
+                {/* Display location category */}
                 <span className={styles.locationCategory}>
                   {categories.find(c => c.id === location.category)?.icon} {categories.find(c => c.id === location.category)?.name}
                 </span>

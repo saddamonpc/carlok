@@ -65,9 +65,9 @@ carlok/
 Dokumentasi tersedia di direktori [`/docs`](./docs/):
 
 - [`README.md`](./docs/README.md) - Dokumentasi hub
-- [`architecture.md`](./architecture.md) - Dokummentasi arsitektur
-- [`components.md`](./components.md) - Dokumentasi komponen
-- [`routing.md`](./routing.md) - Dokumentasi routing
+- [`architecture.md`](./docs/architecture.md) - Dokummentasi arsitektur
+- [`components.md`](./docs/components.md) - Dokumentasi komponen
+- [`routing.md`](./docs/routing.md) - Dokumentasi routing
 
 ## Contact
 Silakan hubungi saya:

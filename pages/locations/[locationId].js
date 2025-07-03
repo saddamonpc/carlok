@@ -31,7 +31,8 @@ export default function LocationPage({ location, relatedLocations, images }) {
       ? `/denah2/${locations.find(l => l.id === location.building)?.name}/${location.floor}.png`
       : null;
 
-  return (    <Layout>
+  return (
+    <Layout>
       <Head>
         <title>{`${location.name} - Campus Map`}</title>
         <meta name="description" content={location.description} />
@@ -44,14 +45,16 @@ export default function LocationPage({ location, relatedLocations, images }) {
             ← Balik ke Peta Kampus
           </Link>
         </div>
-        
+
+        {/* Location header */}
         <div className={styles.locationHeader}>
           <span className={styles.locationCategory}>
             {categories.find(c => c.id === location.category)?.icon} {categoryName}
           </span>
           <h1 className={styles.title}>{location.name}</h1>
         </div>
-        
+
+        {/* Location details */}
         <div className={styles.locationDetails}>
           <p className={styles.locationDescription}>{location.description}</p>
           
@@ -94,7 +97,8 @@ export default function LocationPage({ location, relatedLocations, images }) {
           {/* Building-specific details */}
           {location.category === 'buildings' && location.floors && location.floors.length > 0 && (
             <div className={styles.locationDetailsSection}>
-              <h3>Lantai</h3>              <div className={styles.floorNav}>
+              <h3>Lantai</h3>
+              <div className={styles.floorNav}>
                 {location.floors.map((floor, index) => (
                   <button
                     key={floor}
@@ -107,12 +111,16 @@ export default function LocationPage({ location, relatedLocations, images }) {
               </div>
             </div>
           )}
-            {/* Location in building */}
+          
+          {/* Room / Location's Location in building (display "Terletak di Gedung X, Lantai Y") */}
           {location.building && (
             <div className={styles.locationDetailsSection}>
-              <h3>Lokasi</h3>              <p>
+              <h3>Lokasi</h3>
+              <p>
                 Terletak di{' '}
-                <Link href={`/locations/${location.building}`} className={styles.locationLink}>
+                <Link
+                  href={`/locations/${location.building}`} 
+                  className={styles.locationLink}>
                   {locations.find(l => l.id === location.building)?.name}
                 </Link>
                 {location.floor && (
@@ -124,7 +132,8 @@ export default function LocationPage({ location, relatedLocations, images }) {
                   </span>
                 )}
               </p>
-            </div>          )}
+          </div>
+          )}
         </div>
         
         {/* Floor plan or location image */}
